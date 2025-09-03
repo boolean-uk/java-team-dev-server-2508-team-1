@@ -84,7 +84,7 @@ public class Main implements CommandLineRunner {
         }
         Profile teacherProfile;
         if (!this.profileRepository.existsById(2)) {
-            teacherProfile = this.profileRepository.save(new Profile(teacherUser, "Rick", "Sanchez", "Hello there!", "teacher1", "22222222"));
+            teacherProfile = this.profileRepository.save(new Profile(teacherUser, "Rick", "Sanchez", "Hello there!", "teacher1", "88888888"));
         } else {
             teacherProfile = this.profileRepository.findById(2).orElse(null);
         }

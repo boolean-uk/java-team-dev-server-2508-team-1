@@ -4,8 +4,10 @@ import com.booleanuk.cohorts.models.Cohort;
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.repository.ProfileRepository;
+import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.Integer.parseInt;
 
@@ -23,6 +26,9 @@ import static java.lang.Integer.parseInt;
 public class ProfileController {
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     record PostProfile(
             int user,
@@ -34,30 +40,34 @@ public class ProfileController {
     ){}
 
     @PostMapping
-    public ResponseEntity<Profile> createProfile(@RequestBody PostProfile profile) {
-        User user = profileRepository.findUserById(profile.user);
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> createProfile(@RequestBody PostProfile profile) {
+
+        if(profile.first_name == null || profile.first_name == "" || profile.last_name == null || profile.last_name == ""){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+        Optional<User> optionalUser = userRepository.findById(profile.user);
+        if (optionalUser.isEmpty()) {
+            return new ResponseEntity<>(
+                    "User for id "+ profile.user + " not found", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = optionalUser.get();
 
         Profile newProfile = new Profile(
                 user,
                 profile.first_name,
                 profile.last_name,
+                profile.bio,
                 "https://github.com/" + profile.github_username,
-                profile.mobile,
-                profile.bio
+                profile.mobile
                 );
 
-        return new ResponseEntity<>(profileRepository.save(newProfile), HttpStatus.OK);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        try {
+            return new ResponseEntity<>(profileRepository.save(newProfile), HttpStatus.OK);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>("User has an existing profile", HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
