@@ -74,10 +74,10 @@ public class AuthController {
         String emailRegex = "^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+$";
         String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[#?!@$%^&-]).{8,}$";
 
-        if(signupRequest.getEmail().matches(emailRegex))
+        if(!signupRequest.getEmail().matches(emailRegex))
             return ResponseEntity.badRequest().body(new MessageResponse("Email is incorrectly formatted"));
 
-        if(signupRequest.getPassword().matches(passwordRegex))
+        if(!signupRequest.getPassword().matches(passwordRegex))
             return  ResponseEntity.badRequest().body(new MessageResponse("Password is incorrectly formatted"));
 
         // Create a new user add salt here if using one
