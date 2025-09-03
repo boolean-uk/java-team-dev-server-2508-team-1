@@ -43,13 +43,12 @@ public class ProfileController {
     public ResponseEntity<?> createProfile(@RequestBody PostProfile profile) {
 
         if(profile.first_name == null || profile.first_name == "" || profile.last_name == null || profile.last_name == ""){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("First and last name can't be empty or NULL. First name: " + profile.first_name + " Last name: " + profile.last_name, HttpStatus.BAD_REQUEST);
         }
 
         Optional<User> optionalUser = userRepository.findById(profile.user);
         if (optionalUser.isEmpty()) {
-            return new ResponseEntity<>(
-                    "User for id "+ profile.user + " not found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User for id "+ profile.user + " not found", HttpStatus.BAD_REQUEST);
         }
 
         User user = optionalUser.get();
