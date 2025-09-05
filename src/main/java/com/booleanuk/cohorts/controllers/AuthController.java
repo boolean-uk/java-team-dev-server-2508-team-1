@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+//fixed issue with login.
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping
