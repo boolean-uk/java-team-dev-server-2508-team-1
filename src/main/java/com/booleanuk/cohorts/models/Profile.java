@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @NoArgsConstructor
 @Data
 @Entity
@@ -43,11 +45,20 @@ public class Profile {
     @Column
     private String mobile;
 
+    @Column
+    private String specialism;
+
+    @Column
+    private LocalDate startDate;
+
+    @Column
+    private LocalDate endDate;
+
     public Profile(int id) {
         this.id = id;
     }
 
-    public Profile(User user, String firstName, String lastName, String bio, String githubUrl, String mobile) {
+    public Profile(User user, String firstName, String lastName, String bio, String githubUrl, String mobile,  String specialism, LocalDate startDate, LocalDate endDate) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;

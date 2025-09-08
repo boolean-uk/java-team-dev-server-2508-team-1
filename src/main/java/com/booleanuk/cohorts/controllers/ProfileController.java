@@ -14,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +37,10 @@ public class ProfileController {
             String last_name,
             String github_username,
             String mobile,
-            String bio
+            String bio,
+            String specialty,
+            String start_date,
+            String end_date
     ){}
 
     @PostMapping
@@ -53,14 +57,23 @@ public class ProfileController {
 
         User user = optionalUser.get();
 
-        Profile newProfile = new Profile(
-                user,
-                profile.first_name,
-                profile.last_name,
-                profile.bio,
-                "https://github.com/" + profile.github_username,
-                profile.mobile
-                );
+        Profile newProfile = null;
+        try {
+            newProfile = new Profile(
+                    user,
+                    profile.first_name,
+                    profile.last_name,
+                    profile.bio,
+                    "https://github.com/" + profile.github_username,
+                    profile.mobile,
+                    profile.specialty,
+                    LocalDate.parse(profile.start_date),
+                    LocalDate.parse(profile.end_date)
+                    );
+        } catch (DateTimeParseException e) {
+            return new ResponseEntity<>("Wrong formatting for start_date or end_date. Plese use the following format: 2025-09-14",
+                    HttpStatus.BAD_REQUEST);
+        }
 
         try {
             return new ResponseEntity<>(profileRepository.save(newProfile), HttpStatus.OK);
