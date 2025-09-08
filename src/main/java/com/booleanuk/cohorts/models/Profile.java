@@ -65,5 +65,8 @@ public class Profile {
         this.bio = bio;
         this.githubUrl = githubUrl;
         this.mobile = mobile;
+        this.specialism = specialism;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 }
