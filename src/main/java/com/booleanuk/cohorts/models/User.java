@@ -30,6 +30,7 @@ public class User {
 
     // The AuthController uses a built-in class for Users that expects a Username, we don't use it elsewhere in the code.
     @Transient
+    @Size(min = 7, max = 50, message = "Username must be between 7 and 50 characters")
     private String username = this.email;
 
     @NotBlank

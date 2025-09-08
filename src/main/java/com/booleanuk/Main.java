@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,7 +70,16 @@ public class Main implements CommandLineRunner {
         }
         Profile studentProfile;
         if (!this.profileRepository.existsById(1)) {
-            studentProfile = this.profileRepository.save(new Profile(studentUser, "Joe", "Bloggs", "Hello world!", "student1"));
+            studentProfile = this.profileRepository.save(new Profile(studentUser,
+                    "Joe",
+                    "Bloggs",
+                    "Hello world!",
+                    "student1",
+                    "11111111",
+                    "Backend Development",
+                    LocalDate.of(2025, 9, 8
+                    ), LocalDate.of(2026, 9, 8)
+            ));
         } else {
             studentProfile = this.profileRepository.findById(1).orElse(null);
         }
@@ -84,7 +94,16 @@ public class Main implements CommandLineRunner {
         }
         Profile teacherProfile;
         if (!this.profileRepository.existsById(2)) {
-            teacherProfile = this.profileRepository.save(new Profile(teacherUser, "Rick", "Sanchez", "Hello there!", "teacher1"));
+            teacherProfile = this.profileRepository.save(new Profile(teacherUser,
+                    "Rick",
+                    "Sanchez",
+                    "Hello there!",
+                    "teacher1",
+                    "88888888",
+                    "Everything",
+                    LocalDate.of(1962, 9, 8),
+                    LocalDate.of(2062, 9, 8)
+            ));
         } else {
             teacherProfile = this.profileRepository.findById(2).orElse(null);
         }
