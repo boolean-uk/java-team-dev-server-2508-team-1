@@ -46,6 +46,11 @@ public class User {
     @JsonIgnoreProperties("users")
     private Cohort cohort;
 
+    @OneToOne
+    @JoinColumn(name = "profile_id")
+    @JsonIgnoreProperties("users")
+    private Profile profile;
+
     public User(String email, String password) {
         this.email = email;
         this.password = password;

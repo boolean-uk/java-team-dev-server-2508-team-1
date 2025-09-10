@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.annotation.Target;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -42,6 +43,24 @@ public class ProfileController {
             String start_date,
             String end_date
     ){}
+
+    record TargetUser(
+            int user_id
+    ){}
+
+    @PatchMapping("{id}")
+    public ResponseEntity<?> updateUserWithProfile(@PathVariable int id, @RequestBody TargetUser targetUser) {
+        Profile profile = profileRepository.findById(id).orElse(null);
+        if (profile == null){
+            return new ResponseEntity<>("Could not add profile to user because the profile does not exist", HttpStatus.NOT_FOUND);
+        }
+        User user = userRepository.findById(targetUser.user_id).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+        user.setProfile(profile.);
+        return new ResponseEntity<>("Profile added to user with email: " + user.getEmail(), HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<?> createProfile(@RequestBody PostProfile profile) {
