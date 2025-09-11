@@ -61,4 +61,10 @@ public class User {
         this.password = password;
         this.cohort = cohort;
     }
+    public User(String email, String password, Cohort cohort, Profile profile) {
+        this.email = email;
+        this.password = password;
+        this.cohort = cohort;
+        this.profile = profile;
+    }
 }
