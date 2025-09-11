@@ -1,5 +1,6 @@
 package com.booleanuk.cohorts.controllers;
 
+import com.booleanuk.cohorts.models.Cohort;
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.response.ErrorResponse;
@@ -58,15 +59,21 @@ public class UserController {
         if (user == null) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
+
         if (user.getProfile() != null) {
             return new ResponseEntity<>("A profile is already registered on this user", HttpStatus.BAD_REQUEST);
         }
+
+        Cohort cohort = profile.getCohort();
+
         user.setProfile(profile);
+        user.setCohort(cohort);
         try {
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>("User has an existing profile", HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @PostMapping
