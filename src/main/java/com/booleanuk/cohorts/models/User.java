@@ -43,8 +43,12 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id", nullable = true)
-    @JsonIgnoreProperties("users")
+    @JsonIgnoreProperties({"users","cohort_courses"})
     private Cohort cohort;
+
+    @OneToOne(mappedBy = "user",fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("user")
+    private Profile profile;
 
     public User(String email, String password) {
         this.email = email;

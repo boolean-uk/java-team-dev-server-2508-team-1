@@ -1,13 +1,11 @@
 package com.booleanuk.cohorts.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor
 @Data
@@ -26,6 +24,10 @@ public class Cohort {
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
     private List<Course> cohort_courses;
+
+    @OneToMany(mappedBy = "cohort", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("users")
+    private List<User> users;
 
 
     public Cohort(int id) {
