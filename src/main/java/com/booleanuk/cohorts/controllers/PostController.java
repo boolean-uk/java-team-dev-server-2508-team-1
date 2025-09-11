@@ -23,6 +23,7 @@ import com.booleanuk.cohorts.models.Post;
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.CommentRequest;
+import com.booleanuk.cohorts.payload.request.PostRequest;
 import com.booleanuk.cohorts.payload.response.CommentResponse;
 import com.booleanuk.cohorts.payload.response.ErrorResponse;
 import com.booleanuk.cohorts.payload.response.PostListResponse;
@@ -56,84 +57,83 @@ public class PostController {
         return null;
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllPosts() {
-        PostListResponse postListResponse = new PostListResponse();
-        
-        List<Post> posts = this.postRepository.findAll();
-        
-        // For each post, set up the author information
-        for (Post post : posts) {
-            User user = post.getUser();
-            if (user != null) {
-                Profile profile = this.profileRepository.findById(user.getId()).orElse(null);
-                if (profile != null && user.getCohort() != null) {
-                    Author author = new Author(
-                        user.getId(), 
-                        user.getCohort().getId(), 
-                        profile.getFirstName(),
-                        profile.getLastName(), 
-                        user.getEmail(), 
-                        profile.getBio(), 
-                        profile.getGithubUrl()
-                    );
-                    post.setAuthor(author);
-                }
+    private ResponseEntity<Response> unauthorizedResponse() {
+        ErrorResponse error = new ErrorResponse();
+        error.set("Authentication required");
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    private ResponseEntity<Response> notFoundResponse(String message) {
+        ErrorResponse error = new ErrorResponse();
+        error.set(message);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity<Response> badRequestResponse(String message) {
+        ErrorResponse error = new ErrorResponse();
+        error.set(message);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<Response> forbiddenResponse(String message) {
+        ErrorResponse error = new ErrorResponse();
+        error.set(message);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    private void setAuthorInfo(Post post) {
+        User user = post.getUser();
+        if (user != null && user.getCohort() != null) {
+            Profile profile = this.profileRepository.findById(user.getId()).orElse(null);
+            if (profile != null) {
+                Author author = new Author(user.getId(), user.getCohort().getId(), 
+                    profile.getFirstName(), profile.getLastName(), user.getEmail(), 
+                    profile.getBio(), profile.getGithubUrl());
+                post.setAuthor(author);
             }
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllPosts() {
+        List<Post> posts = this.postRepository.findAll();
+        posts.forEach(this::setAuthorInfo);
         
+        PostListResponse postListResponse = new PostListResponse();
         postListResponse.set(posts);
         return ResponseEntity.ok(postListResponse);
+    }
+
+    @PostMapping
+    public ResponseEntity<Response> createPost(@RequestBody PostRequest postRequest) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (currentUser == null) return unauthorizedResponse();
+
+        Post post = new Post(postRequest.getContent(), currentUser, 0);
+        Post savedPost = this.postRepository.save(post);
+        setAuthorInfo(savedPost);
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.set(savedPost);
+        return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> getPostById(@PathVariable int id) {
         Post post = this.postRepository.findById(id).orElse(null);
+        if (post == null) return notFoundResponse("Post not found");
         
-        if (post == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Post not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
-        
-        // Set up the author information
-        User user = post.getUser();
-        if (user != null) {
-            Profile profile = this.profileRepository.findById(user.getId()).orElse(null);
-            if (profile != null && user.getCohort() != null) {
-                Author author = new Author(
-                    user.getId(), 
-                    user.getCohort().getId(), 
-                    profile.getFirstName(),
-                    profile.getLastName(), 
-                    user.getEmail(), 
-                    profile.getBio(), 
-                    profile.getGithubUrl()
-                );
-                post.setAuthor(author);
-            }
-        }
-        
+        setAuthorInfo(post);
         PostResponse postResponse = new PostResponse();
         postResponse.set(post);
         return ResponseEntity.ok(postResponse);
-    }
-
-    @PostMapping("/{postId}/comments")
+    }    @PostMapping("/{postId}/comments")
     public ResponseEntity<Response> addCommentToPost(@PathVariable int postId, @RequestBody CommentRequest commentRequest) {
         Post post = this.postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Post not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (post == null) return notFoundResponse("Post not found");
 
         User user = this.userRepository.findById(commentRequest.getUserId()).orElse(null);
-        if (user == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("User not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (user == null) return notFoundResponse("User not found");
 
         Comment comment = new Comment(commentRequest.getBody(), user, post);
         Comment savedComment = this.commentRepository.save(comment);
@@ -146,13 +146,8 @@ public class PostController {
     @GetMapping("/{postId}/comments")
     public ResponseEntity<Response> getCommentsForPost(@PathVariable int postId) {
         Post post = this.postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Post not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (post == null) return notFoundResponse("Post not found");
 
-        // Return the post with its comments (comments will be included via the @OneToMany relationship)
         PostResponse postResponse = new PostResponse();
         postResponse.set(post);
         return ResponseEntity.ok(postResponse);
@@ -160,28 +155,14 @@ public class PostController {
 
     @GetMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<Response> getCommentById(@PathVariable int postId, @PathVariable int commentId) {
-        // Verify post exists
         Post post = this.postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Post not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (post == null) return notFoundResponse("Post not found");
 
-        // Get the comment
         Comment comment = this.commentRepository.findById(commentId).orElse(null);
-        if (comment == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Comment not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (comment == null) return notFoundResponse("Comment not found");
 
-        // Verify the comment belongs to the specified post
-        if (comment.getPost().getId() != postId) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Comment does not belong to the specified post");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+        if (comment.getPost().getId() != postId) 
+            return badRequestResponse("Comment does not belong to the specified post");
 
         CommentResponse commentResponse = new CommentResponse();
         commentResponse.set(comment);
@@ -190,45 +171,21 @@ public class PostController {
 
     @PutMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<Response> updateComment(@PathVariable int postId, @PathVariable int commentId, @RequestBody CommentRequest commentRequest) {
-        // Get the current authenticated user
         User currentUser = getCurrentAuthenticatedUser();
-        if (currentUser == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Authentication required");
-            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-        }
+        if (currentUser == null) return unauthorizedResponse();
 
-        // Verify post exists
         Post post = this.postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Post not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (post == null) return notFoundResponse("Post not found");
 
-        // Get the comment
         Comment comment = this.commentRepository.findById(commentId).orElse(null);
-        if (comment == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Comment not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (comment == null) return notFoundResponse("Comment not found");
 
-        // Verify the comment belongs to the specified post
-        if (comment.getPost().getId() != postId) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Comment does not belong to the specified post");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+        if (comment.getPost().getId() != postId) 
+            return badRequestResponse("Comment does not belong to the specified post");
 
-        // Verify the user is the owner of the comment
-        if (comment.getUser().getId() != currentUser.getId()) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("You can only edit your own comments");
-            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
-        }
+        if (comment.getUser().getId() != currentUser.getId()) 
+            return forbiddenResponse("You can only edit your own comments");
 
-        // Update the comment
         comment.setBody(commentRequest.getBody());
         Comment updatedComment = this.commentRepository.save(comment);
 
@@ -239,50 +196,59 @@ public class PostController {
 
     @DeleteMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<Response> deleteComment(@PathVariable int postId, @PathVariable int commentId) {
-        // Get the current authenticated user
         User currentUser = getCurrentAuthenticatedUser();
-        if (currentUser == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Authentication required");
-            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-        }
+        if (currentUser == null) return unauthorizedResponse();
 
-        // Verify post exists
         Post post = this.postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Post not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (post == null) return notFoundResponse("Post not found");
 
-        // Get the comment
         Comment comment = this.commentRepository.findById(commentId).orElse(null);
-        if (comment == null) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Comment not found");
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        if (comment == null) return notFoundResponse("Comment not found");
 
-        // Verify the comment belongs to the specified post
-        if (comment.getPost().getId() != postId) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("Comment does not belong to the specified post");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+        if (comment.getPost().getId() != postId) 
+            return badRequestResponse("Comment does not belong to the specified post");
 
-        // Verify the user is the owner of the comment
-        if (comment.getUser().getId() != currentUser.getId()) {
-            ErrorResponse error = new ErrorResponse();
-            error.set("You can only delete your own comments");
-            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
-        }
+        if (comment.getUser().getId() != currentUser.getId()) 
+            return forbiddenResponse("You can only delete your own comments");
 
-        // Delete the comment
         this.commentRepository.delete(comment);
 
-        // Return success message
         ErrorResponse success = new ErrorResponse();
         success.set("Comment deleted successfully");
         return ResponseEntity.ok(success);
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Response> likePost(@PathVariable int postId) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (currentUser == null) return unauthorizedResponse();
+
+        Post post = this.postRepository.findById(postId).orElse(null);
+        if (post == null) return notFoundResponse("Post not found");
+
+        post.setLikes(post.getLikes() + 1);
+        Post updatedPost = this.postRepository.save(post);
+        setAuthorInfo(updatedPost);
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.set(updatedPost);
+        return ResponseEntity.ok(postResponse);
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<Response> unlikePost(@PathVariable int postId) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (currentUser == null) return unauthorizedResponse();
+
+        Post post = this.postRepository.findById(postId).orElse(null);
+        if (post == null) return notFoundResponse("Post not found");
+
+        post.setLikes(Math.max(0, post.getLikes() - 1));
+        Post updatedPost = this.postRepository.save(post);
+        setAuthorInfo(updatedPost);
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.set(updatedPost);
+        return ResponseEntity.ok(postResponse);
     }
 }
