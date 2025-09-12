@@ -43,12 +43,13 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id", nullable = true)
-    @JsonIgnoreProperties("users")
+    @JsonIgnoreProperties({"users","cohort_courses"})
     private Cohort cohort;
+
 
     @OneToOne
     @JoinColumn(name = "profile_id")
-    @JsonIgnoreProperties("users")
+    @JsonIgnoreProperties("user")
     private Profile profile;
 
     public User(String email, String password) {

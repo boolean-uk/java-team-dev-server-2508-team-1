@@ -1,10 +1,7 @@
 package com.booleanuk.cohorts.controllers;
 
-import com.booleanuk.cohorts.models.Cohort;
-import com.booleanuk.cohorts.payload.response.CohortListResponse;
-import com.booleanuk.cohorts.payload.response.CohortResponse;
-import com.booleanuk.cohorts.payload.response.ErrorResponse;
-import com.booleanuk.cohorts.payload.response.Response;
+import com.booleanuk.cohorts.models.*;
+import com.booleanuk.cohorts.payload.response.*;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +25,7 @@ public class CohortController {
     @GetMapping("{id}")
     public ResponseEntity<Response> getCohortById(@PathVariable int id) {
         Cohort cohort = this.cohortRepository.findById(id).orElse(null);
-        if (cohort == null) {
+        if (cohort == null || cohort.getUsers().isEmpty()) {
             ErrorResponse error = new ErrorResponse();
             error.set("not found");
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
