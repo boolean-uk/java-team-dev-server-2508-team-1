@@ -12,18 +12,18 @@ import lombok.Setter;
 public class Author {
     private int id;
     private int cohortId;
-    private String firstName;
-    private String lastName;
+    private String first_name;
+    private String last_name;
     private String email;
     private String bio;
     private String githubUrl;
     private String role;
 
-    public Author(int id, int cohortId, String firstName, String lastName, String email, String bio, String githubUrl) {
+    public Author(int id, int cohortId, String first_name, String last_name, String email, String bio, String githubUrl) {
         this.id = id;
         this.cohortId = cohortId;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.first_name = first_name;
+        this.last_name = last_name;
         this.email = email;
         this.bio = bio;
         this.githubUrl = githubUrl;
