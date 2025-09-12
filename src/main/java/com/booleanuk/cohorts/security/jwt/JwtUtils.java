@@ -31,6 +31,7 @@ public class JwtUtils {
 
         return Jwts.builder()
                 .subject((userPrincipal.getUsername()))
+                .claim("userId", userPrincipal.getId())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + this.jwtExpirationMs))
                 .signWith(this.key())

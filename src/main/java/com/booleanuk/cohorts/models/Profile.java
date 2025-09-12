@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.engine.internal.Cascade;
 
 import java.time.LocalDate;
 
@@ -37,6 +38,9 @@ public class Profile {
     private String lastName;
 
     @Column
+    private String username;
+
+    @Column
     private String bio;
 
     @Column
@@ -54,19 +58,35 @@ public class Profile {
     @Column
     private LocalDate endDate;
 
+    @ManyToOne
+    @JoinColumn(name = "cohort_id")
+    private Cohort cohort;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
+
+    @Column
+    private String photo;
+
     public Profile(int id) {
         this.id = id;
     }
 
-    public Profile(User user, String firstName, String lastName, String bio, String githubUrl, String mobile,  String specialism, LocalDate startDate, LocalDate endDate) {
+    public Profile(User user, String firstName, String lastName, String username, String githubUrl, String mobile,
+                   String bio, Role role, String specialism, Cohort cohort, LocalDate startDate, LocalDate endDate, String photo) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.bio = bio;
+        this.username = username;
         this.githubUrl = githubUrl;
         this.mobile = mobile;
+        this.bio = bio;
+        this.role = role;
         this.specialism = specialism;
+        this.cohort = cohort;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.photo = photo;
     }
 }
