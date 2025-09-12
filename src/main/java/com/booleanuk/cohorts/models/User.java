@@ -49,7 +49,7 @@ public class User {
 
     @OneToOne
     @JoinColumn(name = "profile_id")
-    @JsonIgnoreProperties("users")
+    @JsonIgnoreProperties("user")
     private Profile profile;
 
     public User(String email, String password) {
