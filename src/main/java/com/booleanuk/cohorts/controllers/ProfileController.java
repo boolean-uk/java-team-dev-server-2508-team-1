@@ -39,7 +39,7 @@ public class ProfileController {
     private UserRepository userRepository;
 
     record PostProfile(
-            int user,
+            int userId,
             String first_name,
             String last_name,
             String username,
@@ -61,9 +61,9 @@ public class ProfileController {
             return new ResponseEntity<>("First and last name can't be empty or NULL. First name: " + profile.first_name + " Last name: " + profile.last_name, HttpStatus.BAD_REQUEST);
         }
 
-        Optional<User> optionalUser = userRepository.findById(profile.user);
+        Optional<User> optionalUser = userRepository.findById(profile.userId);
         if (optionalUser.isEmpty()) {
-            return new ResponseEntity<>("User for id "+ profile.user + " not found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User for id "+ profile.userId + " not found", HttpStatus.BAD_REQUEST);
         }
 
         User user = optionalUser.get();
@@ -89,8 +89,8 @@ public class ProfileController {
                     profile.first_name,
                     profile.last_name,
                     profile.username,
-                    profile.mobile,
                     "https://github.com/" + profile.github_username,
+                    profile.mobile,
                     profile.bio,
                     role,
                     profile.specialism,
