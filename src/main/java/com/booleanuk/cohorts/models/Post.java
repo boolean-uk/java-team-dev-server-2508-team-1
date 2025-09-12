@@ -33,6 +33,9 @@ public class Post {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int likes = 0;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnoreProperties("users")
@@ -47,22 +50,32 @@ public class Post {
 
     public Post(int id) {
         this.id = id;
+        this.likes = 0;
     }
 
     public Post(User user, String content) {
         this.user = user;
         this.content = content;
+        this.likes = 0;
     }
 
     public Post(Author author, String content) {
         this.author = author;
         this.content = content;
+        this.likes = 0;
     }
 
     public Post(String content, User user, List<Comment> comments) {
         this.content = content;
         this.user = user;
         this.comments = comments;
+        this.likes = 0;
+    }
+
+    public Post(String content, User user, int likes) {
+        this.content = content;
+        this.user = user;
+        this.likes = likes;
     }
 
 
