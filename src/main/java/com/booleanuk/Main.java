@@ -73,12 +73,16 @@ public class Main implements CommandLineRunner {
             studentProfile = this.profileRepository.save(new Profile(studentUser,
                     "Joe",
                     "Bloggs",
+                    "usrname",
+                    "mygit",
+                    "95555",
                     "Hello world!",
-                    "student1",
-                    "11111111",
+                    studentRole,
                     "Backend Development",
-                    LocalDate.of(2025, 9, 8
-                    ), LocalDate.of(2026, 9, 8)
+                    cohort,
+                    LocalDate.of(2025, 9, 8),
+                    LocalDate.of(2026, 9, 8),
+                    "fnwjkdnfj32.,."
             ));
         } else {
             studentProfile = this.profileRepository.findById(1).orElse(null);
@@ -95,14 +99,18 @@ public class Main implements CommandLineRunner {
         Profile teacherProfile;
         if (!this.profileRepository.existsById(2)) {
             teacherProfile = this.profileRepository.save(new Profile(teacherUser,
-                    "Rick",
-                    "Sanchez",
-                    "Hello there!",
-                    "teacher1",
-                    "88888888",
-                    "Everything",
-                    LocalDate.of(1962, 9, 8),
-                    LocalDate.of(2062, 9, 8)
+                    "Joe",
+                    "Bloggs",
+                    "usrname",
+                    "mygit",
+                    "95555",
+                    "Hello world!",
+                    teacherRole,
+                    "Backend Development",
+                    cohort,
+                    LocalDate.of(2025, 9, 8),
+                    LocalDate.of(2026, 9, 8),
+                    "fnwjkdnfj32.,."
             ));
         } else {
             teacherProfile = this.profileRepository.findById(2).orElse(null);

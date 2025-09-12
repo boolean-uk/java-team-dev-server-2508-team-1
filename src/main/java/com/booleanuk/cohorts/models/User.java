@@ -46,8 +46,10 @@ public class User {
     @JsonIgnoreProperties({"users","cohort_courses"})
     private Cohort cohort;
 
-    @OneToOne(mappedBy = "user",fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("user")
+
+    @OneToOne
+    @JoinColumn(name = "profile_id")
+    @JsonIgnoreProperties("users")
     private Profile profile;
 
     public User(String email, String password) {
@@ -59,5 +61,11 @@ public class User {
         this.email = email;
         this.password = password;
         this.cohort = cohort;
+    }
+    public User(String email, String password, Cohort cohort, Profile profile) {
+        this.email = email;
+        this.password = password;
+        this.cohort = cohort;
+        this.profile = profile;
     }
 }
