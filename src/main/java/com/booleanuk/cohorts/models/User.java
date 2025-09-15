@@ -47,7 +47,7 @@ public class User {
     private Cohort cohort;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_id")
     @JsonIgnoreProperties("user")
     private Profile profile;

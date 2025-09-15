@@ -17,6 +17,7 @@ import java.lang.annotation.Target;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -54,6 +55,10 @@ public class ProfileController {
             String photo
     ){}
 
+    @GetMapping
+    public List<Profile> createProfile() {
+        return profileRepository.findAll();
+    }
     @PostMapping
     public ResponseEntity<?> createProfile(@RequestBody PostProfile profile) {
 

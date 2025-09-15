@@ -1,5 +1,6 @@
 package com.booleanuk.cohorts.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,9 +21,9 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties("users")
+    @JsonIgnoreProperties("profile")
     private User user;
 
     @NotNull(message = "First name is mandatory")
@@ -60,10 +61,12 @@ public class Profile {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id")
+    @JsonIgnore
     private Cohort cohort;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
+    @JsonIgnoreProperties("cohort")
     private Role role;
 
     @Column
