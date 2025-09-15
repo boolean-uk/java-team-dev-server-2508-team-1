@@ -38,3 +38,5 @@ out/
 
 ### Project specific
 application.yml
+build
+.DS_Store
