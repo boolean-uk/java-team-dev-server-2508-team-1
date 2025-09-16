@@ -84,7 +84,8 @@ public class PostController {
     private void setAuthorInfo(Post post) {
         User user = post.getUser();
         if (user != null && user.getCohort() != null) {
-            Profile profile = this.profileRepository.findById(user.getId()).orElse(null);
+            Profile profile = user.getProfile();
+
             if (profile != null) {
                 Author author = new Author(user.getId(), user.getCohort().getId(), 
                     profile.getFirstName(), profile.getLastName(), user.getEmail(), 
