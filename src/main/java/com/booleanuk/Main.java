@@ -52,6 +52,5 @@ public class Main implements CommandLineRunner {
         if (!this.roleRepository.existsByName(ERole.ROLE_ADMIN)) {
             this.roleRepository.save(new Role(ERole.ROLE_ADMIN));
         }
-
     }
 }
