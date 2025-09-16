@@ -46,11 +46,11 @@ public class CohortController {
         return ResponseEntity.ok(cohortResponse);
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/teacher/{id}")
     public ResponseEntity<?> getCohorstByUserId(@PathVariable int id) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) return new ResponseEntity<>("User for id " + Integer.valueOf(id) + " not found", HttpStatus.NOT_FOUND);
-        Profile teacherProfile = profileRepository.findById(user.getId()).orElse(null);
+        Profile teacherProfile = profileRepository.findById(user.getProfile().getId()).orElse(null);
         if (teacherProfile == null) return new ResponseEntity<>("Profile for user " + user.getEmail() +" not found", HttpStatus.NOT_FOUND);
 
         CohortResponse cohortResponse = new CohortResponse();
