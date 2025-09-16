@@ -1,17 +1,17 @@
 
 package com.booleanuk.cohorts.controllers;
 
-import com.booleanuk.cohorts.models.Cohort;
+
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.StudentRequest;
-import com.booleanuk.cohorts.payload.response.Response;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -23,6 +23,9 @@ public class StudentController {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    PasswordEncoder encoder;
 
     @PatchMapping("{id}")
     public ResponseEntity<?> updateStudent(@PathVariable int id, @RequestBody StudentRequest studentRequest) {
@@ -45,7 +48,7 @@ public class StudentController {
 
         user.setEmail(studentRequest.getEmail());
         profile.setMobile(studentRequest.getMobile());
-        user.setPassword(studentRequest.getPassword());
+        user.setPassword(encoder.encode(studentRequest.getPassword()));
         profile.setBio(studentRequest.getBio());
 
         profileRepository.save(profile);
