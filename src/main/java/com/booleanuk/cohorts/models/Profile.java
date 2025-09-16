@@ -23,7 +23,7 @@ public class Profile {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties("profile")
+    @JsonIgnore
     private User user;
 
     @NotNull(message = "First name is mandatory")
@@ -61,7 +61,6 @@ public class Profile {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id")
-    @JsonIgnore
     private Cohort cohort;
 
     @ManyToOne
