@@ -62,6 +62,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/users", "/users/**").authenticated()
                         .requestMatchers("/posts", "/posts/**").authenticated()
                         .requestMatchers("/cohorts", "/cohorts/**").authenticated()
+                        .requestMatchers("/courses", "/courses/**").authenticated()
                         .requestMatchers("/logs", "/logs/**").authenticated()
                         .requestMatchers("/").authenticated()
                 );
