@@ -127,7 +127,9 @@ public class PostController {
         PostResponse postResponse = new PostResponse();
         postResponse.set(post);
         return ResponseEntity.ok(postResponse);
-    }    @PostMapping("/{postId}/comments")
+    }  
+
+    @PostMapping("/{postId}/comments")
     public ResponseEntity<Response> addCommentToPost(@PathVariable int postId, @RequestBody CommentRequest commentRequest) {
         Post post = this.postRepository.findById(postId).orElse(null);
         if (post == null) return notFoundResponse("Post not found");
@@ -244,6 +246,35 @@ public class PostController {
         if (post == null) return notFoundResponse("Post not found");
 
         post.setLikes(Math.max(0, post.getLikes() - 1));
+        Post updatedPost = this.postRepository.save(post);
+        setAuthorInfo(updatedPost);
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.set(updatedPost);
+        return ResponseEntity.ok(postResponse);
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<Response> updatePost(@PathVariable int postId, @RequestBody PostRequest postRequest) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (currentUser == null) return unauthorizedResponse();
+
+        Post post = this.postRepository.findById(postId).orElse(null);
+        if (post == null) return notFoundResponse("Post not found");
+
+        // Only the owner can update their post
+        if (post.getUser() == null || post.getUser().getId() != currentUser.getId()) {
+            return forbiddenResponse("You can only edit your own posts");
+        }
+
+        // Update content only; likes unchanged
+        if (postRequest.getContent() == null || postRequest.getContent().trim().isEmpty()) {
+            return badRequestResponse("Content cannot be empty");
+        }
+    post.setContent(postRequest.getContent().trim());
+    // Explicitly set timeUpdated only on PUT update of post content
+    post.setTimeUpdated(java.time.OffsetDateTime.now());
+
         Post updatedPost = this.postRepository.save(post);
         setAuthorInfo(updatedPost);
 
