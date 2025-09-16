@@ -1,5 +1,6 @@
 package com.booleanuk.cohorts.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -44,6 +45,7 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "cohort_id", nullable = true)
     @JsonIgnoreProperties({"users","cohort_courses"})
+    @JsonIgnore
     private Cohort cohort;
 
 
