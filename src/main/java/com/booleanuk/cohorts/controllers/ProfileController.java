@@ -109,8 +109,12 @@ public class ProfileController {
                     HttpStatus.BAD_REQUEST);
         }
 
+        newProfile.setUser(user);
+        user.setProfile(newProfile);
+        user.setCohort(cohort);
+
         try {
-            return new ResponseEntity<>(profileRepository.save(newProfile), HttpStatus.OK);
+            return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>("User has an existing profile", HttpStatus.BAD_REQUEST);
         }

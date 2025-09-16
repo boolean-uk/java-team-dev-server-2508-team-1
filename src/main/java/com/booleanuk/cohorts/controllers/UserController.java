@@ -47,33 +47,23 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @PatchMapping("{id}")
-    public ResponseEntity<?> updateUserWithProfile(@PathVariable int id) {
-        int profileId = profileRepository.findAll().stream().filter(it -> it.getUser().getId() == id).toList().getFirst().getId();
-        Profile profile = profileRepository.findById(profileId).orElse(null);
-        if (profile == null){
-            return new ResponseEntity<>("Could not add profile to user because the profile does not exist", HttpStatus.NOT_FOUND);
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable int id) {
+        User user = this.userRepository.findById(id).orElse(null);
+        if (user == null){
+            ErrorResponse error = new ErrorResponse();
+            error.set("not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
-        User user = userRepository.findById(id).orElse(null);
-
-        if (user == null) {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-        }
-
-        if (user.getProfile() != null) {
-            return new ResponseEntity<>("A profile is already registered on this user", HttpStatus.BAD_REQUEST);
-        }
-
-        Cohort cohort = profile.getCohort();
-
-        user.setProfile(profile);
-        user.setCohort(cohort);
+        user.getRoles().clear();
+        UserResponse userResponse = new UserResponse();
+        userResponse.set(user);
         try {
-            return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
-        } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>("User has an existing profile", HttpStatus.BAD_REQUEST);
+            userRepository.delete(user);
+            return ResponseEntity.ok(userResponse);
+        } catch (Exception e){
+            return new ResponseEntity<>("Could not delete user", HttpStatus.BAD_REQUEST);
         }
-
     }
 
     @PostMapping
