@@ -1,5 +1,6 @@
 package com.booleanuk.cohorts.models;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -35,6 +37,12 @@ public class Post {
 
     @Column(nullable = false, columnDefinition = "int default 0")
     private int likes = 0;
+
+    @Column(name = "time_created", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime timeCreated;
+
+    @Column(name = "time_updated", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime timeUpdated;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -76,6 +84,13 @@ public class Post {
         this.content = content;
         this.user = user;
         this.likes = likes;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        OffsetDateTime now = OffsetDateTime.now();
+        this.timeCreated = now;
+        this.timeUpdated = now;
     }
 
 
