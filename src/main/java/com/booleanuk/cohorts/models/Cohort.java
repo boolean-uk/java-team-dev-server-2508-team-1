@@ -25,9 +25,11 @@ public class Cohort {
     )
     private List<Course> cohort_courses;
 
+
     @OneToMany(mappedBy = "cohort", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("users")
-    private List<User> users;
+    @JsonIgnoreProperties("cohort")
+    private List<Profile> profiles;
+
 
 
     public Cohort(int id) {

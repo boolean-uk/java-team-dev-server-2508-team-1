@@ -23,6 +23,7 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+  
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -64,7 +65,6 @@ public class Profile {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id")
-    @JsonIgnore
     private Cohort cohort;
 
     @ManyToOne
