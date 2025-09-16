@@ -1,6 +1,7 @@
 package com.booleanuk.cohorts.controllers;
 
 import com.booleanuk.cohorts.models.*;
+import com.booleanuk.cohorts.payload.response.*;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.RoleRepository;
@@ -56,9 +57,24 @@ public class ProfileController {
     ){}
 
     @GetMapping
-    public List<Profile> createProfile() {
-        return profileRepository.findAll();
+    public ResponseEntity<ProfileListResponse> getAllProfiles() {
+        ProfileListResponse profileListResponse = new ProfileListResponse();
+        profileListResponse.set(this.profileRepository.findAll());
+        return ResponseEntity.ok(profileListResponse);
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> getById(@PathVariable int id){
+        ProfileResponse profileResponse = new ProfileResponse();
+
+        Profile profile = this.profileRepository.findById(id).orElse(null);
+        if (profile == null) {
+            return new ResponseEntity<>("Not found", HttpStatus.NOT_FOUND);
+        }
+        profileResponse.set(profile);
+        return ResponseEntity.ok(profileResponse);
+    }
+
     @PostMapping
     public ResponseEntity<?> createProfile(@RequestBody PostProfile profile) {
 
