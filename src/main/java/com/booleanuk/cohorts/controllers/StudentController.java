@@ -40,6 +40,10 @@ public class StudentController {
             return new ResponseEntity<>("Profile not found", HttpStatus.NOT_FOUND);
         }
 
+        if (profile.getRole().equals("ROLE_TEACHER")) {
+            return new ResponseEntity<>("Only users with the STUDENT role can be viewed.", HttpStatus.BAD_REQUEST);
+        }
+
         profile.setPhoto(studentRequest.getPhoto());
         profile.setFirstName(studentRequest.getFirst_name());
         profile.setLastName(studentRequest.getLast_name());
