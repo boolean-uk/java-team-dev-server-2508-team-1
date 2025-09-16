@@ -77,6 +77,4 @@ public class Post {
         this.user = user;
         this.likes = likes;
     }
-
-
 }
