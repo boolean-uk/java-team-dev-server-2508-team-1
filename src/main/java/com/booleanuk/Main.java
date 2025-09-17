@@ -33,6 +33,13 @@ public class Main implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // Create a cohort.
+        Cohort cohort;
+        if (!this.cohortRepository.existsById(1)) {
+            cohort = this.cohortRepository.save(new Cohort());
+        } else {
+            cohort = this.cohortRepository.findById(1).orElse(null);
+        }
         Role teacherRole;
         if (!this.roleRepository.existsByName(ERole.ROLE_TEACHER)) {
             teacherRole = this.roleRepository.save(new Role(ERole.ROLE_TEACHER));
