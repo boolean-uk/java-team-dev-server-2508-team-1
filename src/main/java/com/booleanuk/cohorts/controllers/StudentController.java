@@ -20,7 +20,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("student")
+@RequestMapping("students")
 public class StudentController {
     @Autowired
     private UserRepository userRepository;
@@ -35,16 +35,28 @@ public class StudentController {
     public ResponseEntity<ProfileListResponse> getAllStudents() {
         List<Profile> allProfiles = this.profileRepository.findAll();
 
+        for(Profile p: allProfiles){
+            System.err.println("Navn: " + p.getFirstName());
+        }
+
         List<Profile> students = new ArrayList<>();
 
         for (Profile profile : allProfiles) {
-            if (profile.getRole().getName().name().equals("ROLE_STUDENT")) {
+            if (profile.getRole() != null &&
+                    profile.getRole().getName() != null &&
+                    "ROLE_STUDENT".equals(profile.getRole().getName().name())) {
                 students.add(profile);
             }
         }
 
         ProfileListResponse studentListResponse = new ProfileListResponse();
         studentListResponse.set(students);
+
+        System.err.println("Her kommer studenter");
+
+        for(Profile p: students){
+            System.err.println("Navn: " + p.getFirstName());
+        }
 
         return ResponseEntity.ok(studentListResponse);
     }
