@@ -30,6 +30,4 @@ public class StudentRequest {
     public String getPassword() { return password; }
     public String getBio() { return bio; }
 
-
-
 }
