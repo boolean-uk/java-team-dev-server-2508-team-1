@@ -128,7 +128,18 @@ public class PostController {
         PostResponse postResponse = new PostResponse();
         postResponse.set(post);
         return ResponseEntity.ok(postResponse);
-    }  
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePostById(@PathVariable int id) {
+        Post post = this.postRepository.findById(id).orElse(null);
+        if (post == null) return notFoundResponse("Post not found");
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.set(post);
+        postRepository.delete(post);
+        return ResponseEntity.ok(postResponse);
+    }
 
     @PostMapping("/{postId}/comments")
     public ResponseEntity<Response> addCommentToPost(@PathVariable int postId, @RequestBody CommentRequest commentRequest) {
