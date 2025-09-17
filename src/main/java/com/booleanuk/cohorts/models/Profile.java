@@ -15,10 +15,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDate;
 
 
-@JsonIdentityInfo(
+/*@JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
-)
+)*/
 
 @NoArgsConstructor
 @Data

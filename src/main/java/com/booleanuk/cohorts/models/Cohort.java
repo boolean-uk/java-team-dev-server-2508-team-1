@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/*
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
 )
+*/
 
 @NoArgsConstructor
 @Data
