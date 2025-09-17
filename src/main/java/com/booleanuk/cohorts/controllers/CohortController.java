@@ -1,17 +1,17 @@
 package com.booleanuk.cohorts.controllers;
 
 import com.booleanuk.cohorts.models.*;
+import com.booleanuk.cohorts.payload.request.ProfileRequest;
 import com.booleanuk.cohorts.payload.response.*;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -58,5 +58,21 @@ public class CohortController {
         cohortResponse.set(cohort);
 
         return new ResponseEntity<CohortResponse>(cohortResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/teacher/{id}")
+    public ResponseEntity<?> addStudentToCohort(@PathVariable int id, @RequestBody ProfileRequest profileRequest){
+        Cohort cohort = cohortRepository.findById(id).orElse(null);
+        if (cohort == null) return new ResponseEntity<>("Cohort for id " + Integer.valueOf(id) + " not found", HttpStatus.NOT_FOUND);
+
+        Profile profile = profileRepository.findById(profileRequest.getUserId()).orElse(null);
+        if (profile == null) return new ResponseEntity<>("Profile not found", HttpStatus.NOT_FOUND);
+
+        Cohort updatedCohort = cohortRepository.findById(profileRequest.getCohort()).orElse(null);
+        if (updatedCohort == null) return new ResponseEntity<>("Cohort not found", HttpStatus.NOT_FOUND);
+
+        profile.setCohort(updatedCohort);
+
+        return new ResponseEntity<>(profileRepository.save(profile), HttpStatus.OK);
     }
 }

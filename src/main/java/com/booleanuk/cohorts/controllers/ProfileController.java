@@ -1,28 +1,32 @@
 package com.booleanuk.cohorts.controllers;
 
-import com.booleanuk.cohorts.models.*;
-import com.booleanuk.cohorts.payload.response.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.booleanuk.cohorts.models.Cohort;
+import com.booleanuk.cohorts.models.ERole;
+import com.booleanuk.cohorts.models.Profile;
+import com.booleanuk.cohorts.models.Role;
+import com.booleanuk.cohorts.models.User;
+import com.booleanuk.cohorts.payload.response.ProfileListResponse;
+import com.booleanuk.cohorts.payload.response.ProfileResponse;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.RoleRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-
-import java.lang.annotation.Target;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static java.lang.Integer.parseInt;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
