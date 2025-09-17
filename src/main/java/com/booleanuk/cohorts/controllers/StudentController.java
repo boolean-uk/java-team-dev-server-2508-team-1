@@ -5,6 +5,7 @@ package com.booleanuk.cohorts.controllers;
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.StudentRequest;
+import com.booleanuk.cohorts.payload.response.ProfileListResponse;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -26,6 +30,25 @@ public class StudentController {
 
     @Autowired
     PasswordEncoder encoder;
+
+    @GetMapping
+    public ResponseEntity<ProfileListResponse> getAllStudents() {
+        List<Profile> allProfiles = this.profileRepository.findAll();
+
+        List<Profile> students = new ArrayList<>();
+
+        for (Profile profile : allProfiles) {
+            if (profile.getRole().getName().name().equals("ROLE_STUDENT")) {
+                students.add(profile);
+            }
+        }
+
+        ProfileListResponse studentListResponse = new ProfileListResponse();
+        studentListResponse.set(students);
+
+        return ResponseEntity.ok(studentListResponse);
+    }
+
 
     @PatchMapping("{id}")
     public ResponseEntity<?> updateStudent(@PathVariable int id, @RequestBody StudentRequest studentRequest) {
