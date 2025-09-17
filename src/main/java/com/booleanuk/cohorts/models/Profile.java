@@ -45,7 +45,7 @@ public class Profile {
     @Column
     private String username;
 
-    @Column
+    @Column(length = 300)
     private String bio;
 
     @Column
