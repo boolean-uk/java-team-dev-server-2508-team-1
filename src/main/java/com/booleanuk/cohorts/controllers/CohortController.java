@@ -1,6 +1,7 @@
 package com.booleanuk.cohorts.controllers;
 
 import com.booleanuk.cohorts.models.*;
+import com.booleanuk.cohorts.payload.request.CohortRequest;
 import com.booleanuk.cohorts.payload.response.*;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
@@ -10,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -59,4 +58,21 @@ public class CohortController {
 
         return new ResponseEntity<CohortResponse>(cohortResponse, HttpStatus.OK);
     }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<?> editCohortById(@PathVariable int id){
+        Cohort
+    }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<?> editCohortbyId(@PathVariable int id, @RequestBody CohortRequest cohortRequest){
+        Cohort cohort = cohortRepository.findById(id).orElse(null);
+        if (cohort == null){
+            return new ResponseEntity<>("Cohort not found", HttpStatus.NOT_FOUND);
+        }
+
+        cohort.setCourse(cohortRequest.getCourse());
+        cohort.setStartDate
+    }
 }
+
