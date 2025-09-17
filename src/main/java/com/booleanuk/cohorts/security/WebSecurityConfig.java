@@ -60,6 +60,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/signup", "/signup/**").permitAll()
                         .requestMatchers("/profiles", "/profiles/**").authenticated()
                         .requestMatchers("/student", "/student/**").authenticated()
+                        .requestMatchers("/teacher", "/teacher/**").authenticated()
                         .requestMatchers("/users", "/users/**").authenticated()
                         .requestMatchers("/posts", "/posts/**").authenticated()
                         .requestMatchers("/cohorts", "/cohorts/**").authenticated()
