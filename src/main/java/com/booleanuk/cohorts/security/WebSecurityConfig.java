@@ -37,7 +37,7 @@ public class WebSecurityConfig {
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
 
-//        authProvider.setUserDetailsService(userDetailsService);
+//      authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
@@ -65,6 +65,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/cohorts", "/cohorts/**").authenticated()
                         .requestMatchers("/courses", "/courses/**").authenticated()
                         .requestMatchers("/logs", "/logs/**").authenticated()
+                        .requestMatchers("/search", "/search/**").authenticated()
                         .requestMatchers("/").authenticated()
                 );
         http.authenticationProvider(authenticationProvider());
