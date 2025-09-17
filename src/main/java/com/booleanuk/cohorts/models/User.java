@@ -60,7 +60,7 @@ public class User {
     @JsonIgnoreProperties("user")
     private List<Post> posts;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
     @JsonIgnoreProperties("user")
     private List<Post> likedPosts;
 
