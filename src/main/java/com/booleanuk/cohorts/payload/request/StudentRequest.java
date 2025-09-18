@@ -17,16 +17,8 @@ public class StudentRequest {
     private String password;
     private String bio;
 
-    public StudentRequest(){}
+    public StudentRequest() {
+    }
 
-    public String getPhoto() { return photo; }
-    public String getFirst_name() { return first_name; }
-    public String getLast_name() { return last_name; }
-    public String getUsername() { return username; }
-    public String getGithub_username() { return github_username; }
-
-    public String getEmail() { return email; }
-    public String getMobile() { return mobile; }
-    public String getPassword() { return password; }
-    public String getBio() { return bio; }
+}
 

@@ -16,5 +16,5 @@ public class CohortRequest {
     private String start_date;
     private String end_date;
 
-    public CohortRequest(){}
+    public CohortRequest(){}}
 

@@ -14,6 +14,4 @@ public class ProfileRequest {
 
     public ProfileRequest(){}
 
-    public int getCohort() { return cohort; }
-    public int getUserId() { return userId; }
 }
