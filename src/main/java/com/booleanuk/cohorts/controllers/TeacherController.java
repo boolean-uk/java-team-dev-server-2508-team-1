@@ -6,6 +6,7 @@ import com.booleanuk.cohorts.models.Role;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.StudentRequest;
 import com.booleanuk.cohorts.payload.request.TeacherEditStudentRequest;
+import com.booleanuk.cohorts.payload.response.ProfileListResponse;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.RoleRepository;
@@ -17,10 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("teacher")
+@RequestMapping("teachers")
 public class TeacherController {
 
     @Autowired
@@ -61,6 +65,26 @@ public class TeacherController {
 
 
         return new ResponseEntity<>(profileRepository.save(profile),HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllTeachers(){
+        List<Profile> allProfiles = this.profileRepository.findAll();
+
+        List<Profile> teachers = new ArrayList<>();
+
+        for (Profile profile : allProfiles) {
+            if (profile.getRole() != null &&
+                    profile.getRole().getName() != null &&
+                    "ROLE_TEACHER".equals(profile.getRole().getName().name())) {
+                teachers.add(profile);
+            }
+        }
+
+        ProfileListResponse teacherListResponse = new ProfileListResponse();
+        teacherListResponse.set(teachers);
+
+        return ResponseEntity.ok(teacherListResponse);
     }
 
 }
