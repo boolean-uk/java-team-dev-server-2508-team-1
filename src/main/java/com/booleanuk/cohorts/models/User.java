@@ -1,7 +1,6 @@
 package com.booleanuk.cohorts.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +9,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+/*
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
+*/
 
 @NoArgsConstructor
 @Data
@@ -44,13 +51,23 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id", nullable = true)
-    @JsonIgnoreProperties({"users","cohort_courses"})
-    @JsonIgnore
+    @JsonIncludeProperties({"id", "cohort_courses"})
     private Cohort cohort;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIncludeProperties({"id", "content", "likes", "timeCreated", "timeUpdated" })
+    private List<Post> posts;
+
+    @OneToMany
+    @JsonIncludeProperties({"id","content", "likes" })
+    private List<Post> likedPosts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIncludeProperties({"id","body" })
+    private List<Comment> comments;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("user")
+    @JsonIgnoreProperties({"user", "role", "cohort"})
     private Profile profile;
 
     public User(String email, String password) {

@@ -1,20 +1,23 @@
 package com.booleanuk.cohorts.security.jwt;
 
-import com.booleanuk.cohorts.security.services.UserDetailsImpl;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.util.Date;
+import com.booleanuk.cohorts.security.services.UserDetailsImpl;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtils {
@@ -32,6 +35,8 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject((userPrincipal.getUsername()))
                 .claim("userId", userPrincipal.getId())
+                .claim("firstName", userPrincipal.getFirstName())
+                .claim("lastName", userPrincipal.getLastName())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + this.jwtExpirationMs))
                 .signWith(this.key())
@@ -44,6 +49,18 @@ public class JwtUtils {
 
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    public String getFirstNameFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("firstName", String.class);
+    }
+
+    public String getLastNameFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("lastName", String.class);
+    }
+
+    public Integer getUserIdFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("userId", Integer.class);
     }
 
     public boolean validateJwtToken(String authToken) {

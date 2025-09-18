@@ -1,6 +1,7 @@
 package com.booleanuk.cohorts.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class Course {
     private String name;
 
     @ManyToMany(mappedBy = "cohort_courses")
-    @JsonIgnoreProperties("cohort_courses")
+    @JsonIncludeProperties("id")
     private List<Cohort> cohorts;
 
     public Course(String name) {

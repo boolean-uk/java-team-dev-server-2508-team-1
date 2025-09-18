@@ -1,18 +1,32 @@
 package com.booleanuk.cohorts.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDate;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.engine.internal.Cascade;
 
-import java.time.LocalDate;
+
+/*@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)*/
 
 @NoArgsConstructor
 @Data
@@ -45,7 +59,7 @@ public class Profile {
     @Column
     private String username;
 
-    @Column
+    @Column(length = 300)
     private String bio;
 
     @Column
@@ -65,6 +79,7 @@ public class Profile {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id")
+    @JsonIgnoreProperties({"profiles", "users", "deliveryLogs", "cohortCourses"})
     private Cohort cohort;
 
     @ManyToOne

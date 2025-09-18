@@ -18,4 +18,3 @@ public class CohortRequest {
 
     public CohortRequest(){}
 
-}

@@ -5,6 +5,7 @@ package com.booleanuk.cohorts.controllers;
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.StudentRequest;
+import com.booleanuk.cohorts.payload.response.ProfileListResponse;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("student")
+@RequestMapping("students")
 public class StudentController {
     @Autowired
     private UserRepository userRepository;
@@ -27,6 +31,27 @@ public class StudentController {
     @Autowired
     PasswordEncoder encoder;
 
+    @GetMapping
+    public ResponseEntity<ProfileListResponse> getAllStudents() {
+        List<Profile> allProfiles = this.profileRepository.findAll();
+
+        List<Profile> students = new ArrayList<>();
+
+        for (Profile profile : allProfiles) {
+            if (profile.getRole() != null &&
+                    profile.getRole().getName() != null &&
+                    "ROLE_STUDENT".equals(profile.getRole().getName().name())) {
+                students.add(profile);
+            }
+        }
+
+        ProfileListResponse studentListResponse = new ProfileListResponse();
+        studentListResponse.set(students);
+
+        return ResponseEntity.ok(studentListResponse);
+    }
+
+
     @PatchMapping("{id}")
     public ResponseEntity<?> updateStudent(@PathVariable int id, @RequestBody StudentRequest studentRequest) {
 
@@ -35,25 +60,55 @@ public class StudentController {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        Profile profile = profileRepository.findById(id).orElse(null);
+        Profile profile = profileRepository.findById(user.getProfile().getId()).orElse(null);
         if (profile == null) {
             return new ResponseEntity<>("Profile not found", HttpStatus.NOT_FOUND);
         }
 
-        if (profile.getRole().equals("ROLE_TEACHER")) {
+        if (profile.getRole().getName().name().equals("ROLE_TEACHER")) {
             return new ResponseEntity<>("Only users with the STUDENT role can be viewed.", HttpStatus.BAD_REQUEST);
         }
 
-        profile.setPhoto(studentRequest.getPhoto());
-        profile.setFirstName(studentRequest.getFirst_name());
-        profile.setLastName(studentRequest.getLast_name());
-        profile.setUsername(studentRequest.getUsername());
-        profile.setGithubUrl(studentRequest.getGithub_username());
+        if (studentRequest.getPhoto() != null) {
+            profile.setPhoto(studentRequest.getPhoto());
+        }
 
-        user.setEmail(studentRequest.getEmail());
-        profile.setMobile(studentRequest.getMobile());
-        user.setPassword(encoder.encode(studentRequest.getPassword()));
-        profile.setBio(studentRequest.getBio());
+        if (studentRequest.getFirst_name() != null) {
+            profile.setFirstName(studentRequest.getFirst_name());
+        }
+
+        if (studentRequest.getLast_name() != null) {
+            profile.setLastName(studentRequest.getLast_name());
+        }
+
+        if (studentRequest.getUsername() != null) {
+            profile.setUsername(studentRequest.getUsername());
+        }
+
+        if (studentRequest.getGithub_username() != null) {
+            profile.setGithubUrl(studentRequest.getGithub_username());
+        }
+
+
+        if (studentRequest.getEmail() != null) {
+            boolean emailExists = userRepository.existsByEmail(studentRequest.getEmail());
+            if (emailExists && !studentRequest.getEmail().equals(user.getEmail())){
+                return new ResponseEntity<>("Email is already in use", HttpStatus.BAD_REQUEST);
+            }
+            user.setEmail(studentRequest.getEmail());
+        }
+
+        if (studentRequest.getMobile() != null) {
+            profile.setMobile(studentRequest.getMobile());
+        }
+
+        if (studentRequest.getPassword() != null) {
+            user.setPassword(encoder.encode(studentRequest.getPassword()));
+        }
+
+        if (studentRequest.getBio() != null) {
+            profile.setBio(studentRequest.getBio());
+        }
 
         profileRepository.save(profile);
 
