@@ -71,7 +71,7 @@ public class User {
     private List<Comment> comments;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("user")
+    @JsonIgnoreProperties({"user", "role"})
     private Profile profile;
 
     public User(String email, String password) {
