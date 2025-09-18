@@ -59,10 +59,6 @@ public class CohortController {
         return new ResponseEntity<CohortResponse>(cohortResponse, HttpStatus.OK);
     }
 
-    @PatchMapping("{id}")
-    public ResponseEntity<?> editCohortById(@PathVariable int id){
-        Cohort
-    }
 
     @PatchMapping("{id}")
     public ResponseEntity<?> editCohortbyId(@PathVariable int id, @RequestBody CohortRequest cohortRequest){
@@ -72,7 +68,10 @@ public class CohortController {
         }
 
         cohort.setCourse(cohortRequest.getCourse());
-        cohort.setStartDate
+        cohort.setStartDate(cohortRequest.getStart_date());
+        cohort.setEndDate(cohortRequest.getEnd_date());
+
+        return new ResponseEntity<>(cohortRepository.save(cohort), HttpStatus.OK);
     }
 }
 

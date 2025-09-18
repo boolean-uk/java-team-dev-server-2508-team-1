@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
@@ -15,7 +16,6 @@ public class Cohort {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
 
     @ManyToMany
     @JsonIgnoreProperties("cohorts")
@@ -30,10 +30,19 @@ public class Cohort {
     @JsonIgnoreProperties("cohort")
     private List<Profile> profiles;
 
+    @Column
+    private LocalDate startDate;
 
+    @Column
+    private LocalDate endDate;
 
     public Cohort(int id) {
         this.id = id;
+    }
+
+    public Cohort(LocalDate startDate, LocalDate endDate){
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     @Override
