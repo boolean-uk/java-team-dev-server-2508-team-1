@@ -1,6 +1,7 @@
 package com.booleanuk.cohorts.controllers;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -86,7 +87,7 @@ public class UserController {
         }
     }
 
-    @PatchMapping("{user_id}")
+    @PatchMapping("{user_id}/like")
     public ResponseEntity<Response> updateLikedPosts(@PathVariable int user_id, @RequestBody PostId postId){
         int post_id = postId.post_id;
         User user = userRepository.findById(user_id).orElse(null);
@@ -101,7 +102,7 @@ public class UserController {
             errorResponse.set("Post not found");
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
-        List<Post> likedPosts = user.getLikedPosts();
+        Set<Post> likedPosts = user.getLikedPosts();
 
         if (likedPosts.contains(post)) {
             likedPosts.remove(post);

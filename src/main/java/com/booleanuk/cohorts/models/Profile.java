@@ -20,6 +20,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(exclude = {"user", "cohort", "role"})
 @Entity
 @Table(name = "profiles")
 public class Profile {

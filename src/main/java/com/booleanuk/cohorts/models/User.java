@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(exclude = {"profile", "posts", "comments", "likedPosts", "cohort"})
 @Entity
 @Table(name = "users",
         uniqueConstraints = {
@@ -59,9 +61,12 @@ public class User {
     @JsonIncludeProperties({"id", "content", "likes", "timeCreated", "timeUpdated" })
     private List<Post> posts;
 
-    @OneToMany
-    @JsonIncludeProperties({"id","content", "likes" })
-    private List<Post> likedPosts;
+    @ManyToMany
+    @JoinTable(name = "user_liked_posts", 
+               joinColumns = @JoinColumn(name = "user_id"), 
+               inverseJoinColumns = @JoinColumn(name = "post_id"))
+    @JsonIncludeProperties(value="id")
+    private Set<Post> likedPosts = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIncludeProperties({"id","body" })
