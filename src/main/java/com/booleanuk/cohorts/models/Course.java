@@ -27,7 +27,6 @@ public class Course {
     private List<Cohort> cohorts;
 
     public Course(String name) {
-        this.id = id;
         this.name = name;
     }
 
