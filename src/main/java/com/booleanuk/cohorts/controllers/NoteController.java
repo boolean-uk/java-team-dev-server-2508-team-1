@@ -82,9 +82,7 @@ public class NoteController {
         note.setDescription(noteReqeuest.getDescription());
         note.setUser(user);
         note.setCreated(LocalDate.now());
-
-
-        return new ResponseEntity<>(note,HttpStatus.CREATED);
+        return new ResponseEntity<>(noteRepository.save(note),HttpStatus.CREATED);
 
     }
 }
