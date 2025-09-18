@@ -60,7 +60,7 @@ public class StudentController {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        Profile profile = profileRepository.findById(id).orElse(null);
+        Profile profile = profileRepository.findById(user.getProfile().getId()).orElse(null);
         if (profile == null) {
             return new ResponseEntity<>("Profile not found", HttpStatus.NOT_FOUND);
         }
@@ -89,7 +89,12 @@ public class StudentController {
             profile.setGithubUrl(studentRequest.getGithub_username());
         }
 
+
         if (studentRequest.getEmail() != null) {
+            boolean emailExists = userRepository.existsByEmail(studentRequest.getEmail());
+            if (emailExists && !studentRequest.getEmail().equals(user.getEmail())){
+                return new ResponseEntity<>("Email is already in use", HttpStatus.BAD_REQUEST);
+            }
             user.setEmail(studentRequest.getEmail());
         }
 
