@@ -70,6 +70,9 @@ public class User {
     @JsonIgnoreProperties({"user", "role", "cohort"})
     private Profile profile;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Note> notes;
+
     public User(String email, String password) {
         this.email = email;
         this.password = password;
