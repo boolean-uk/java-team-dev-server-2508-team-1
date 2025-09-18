@@ -1,4 +1,3 @@
-
 ---
 name: "🐞 Bug Fix"
 about: "Report a bug or something that is not working as expected"

@@ -1,4 +1,3 @@
-
 ---
 name: "📌 Other"
 about: "Questions, discussions, or anything else"
