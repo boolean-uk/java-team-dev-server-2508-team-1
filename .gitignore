@@ -40,3 +40,4 @@ out/
 application.yml
 build
 .DS_Store
+application-azuread.yml
