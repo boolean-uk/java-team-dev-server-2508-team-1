@@ -2,6 +2,7 @@ package com.booleanuk.cohorts.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Entity
 @Table(name = "cohorts")
@@ -16,6 +18,9 @@ public class Cohort {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column
+    private String name;
 
     @ManyToMany
     @JsonIgnoreProperties("cohorts")
@@ -45,9 +50,21 @@ public class Cohort {
         this.endDate = endDate;
     }
 
+    public Cohort(String name, LocalDate startDate, LocalDate endDate){
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public Cohort(int id, String name, LocalDate startDate, LocalDate endDate) {
+        this.id = id;
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     @Override
     public String toString(){
-
         return "Cohort Id: " + this.id;
     }
 }

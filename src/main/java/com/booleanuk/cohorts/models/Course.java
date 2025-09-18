@@ -21,12 +21,11 @@ public class Course {
     @Column
     private String name;
 
-    @JsonIgnoreProperties("cohort_courses")
     @ManyToMany(mappedBy = "cohort_courses")
+    @JsonIgnoreProperties("cohort_courses")
     private List<Cohort> cohorts;
 
     public Course(String name) {
-        this.id = id;
         this.name = name;
     }
 
