@@ -65,20 +65,45 @@ public class StudentController {
             return new ResponseEntity<>("Profile not found", HttpStatus.NOT_FOUND);
         }
 
-        if (profile.getRole().equals("ROLE_TEACHER")) {
+        if (profile.getRole().getName().name().equals("ROLE_TEACHER")) {
             return new ResponseEntity<>("Only users with the STUDENT role can be viewed.", HttpStatus.BAD_REQUEST);
         }
 
-        profile.setPhoto(studentRequest.getPhoto());
-        profile.setFirstName(studentRequest.getFirst_name());
-        profile.setLastName(studentRequest.getLast_name());
-        profile.setUsername(studentRequest.getUsername());
-        profile.setGithubUrl(studentRequest.getGithub_username());
+        if (studentRequest.getPhoto() != null) {
+            profile.setPhoto(studentRequest.getPhoto());
+        }
 
-        user.setEmail(studentRequest.getEmail());
-        profile.setMobile(studentRequest.getMobile());
-        user.setPassword(encoder.encode(studentRequest.getPassword()));
-        profile.setBio(studentRequest.getBio());
+        if (studentRequest.getFirst_name() != null) {
+            profile.setFirstName(studentRequest.getFirst_name());
+        }
+
+        if (studentRequest.getLast_name() != null) {
+            profile.setLastName(studentRequest.getLast_name());
+        }
+
+        if (studentRequest.getUsername() != null) {
+            profile.setUsername(studentRequest.getUsername());
+        }
+
+        if (studentRequest.getGithub_username() != null) {
+            profile.setGithubUrl(studentRequest.getGithub_username());
+        }
+
+        if (studentRequest.getEmail() != null) {
+            user.setEmail(studentRequest.getEmail());
+        }
+
+        if (studentRequest.getMobile() != null) {
+            profile.setMobile(studentRequest.getMobile());
+        }
+
+        if (studentRequest.getPassword() != null) {
+            user.setPassword(encoder.encode(studentRequest.getPassword()));
+        }
+
+        if (studentRequest.getBio() != null) {
+            profile.setBio(studentRequest.getBio());
+        }
 
         profileRepository.save(profile);
 
