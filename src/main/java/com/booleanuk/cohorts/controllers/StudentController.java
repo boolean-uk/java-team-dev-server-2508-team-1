@@ -35,10 +35,6 @@ public class StudentController {
     public ResponseEntity<ProfileListResponse> getAllStudents() {
         List<Profile> allProfiles = this.profileRepository.findAll();
 
-        for(Profile p: allProfiles){
-            System.err.println("Navn: " + p.getFirstName());
-        }
-
         List<Profile> students = new ArrayList<>();
 
         for (Profile profile : allProfiles) {
@@ -51,12 +47,6 @@ public class StudentController {
 
         ProfileListResponse studentListResponse = new ProfileListResponse();
         studentListResponse.set(students);
-
-        System.err.println("Her kommer studenter");
-
-        for(Profile p: students){
-            System.err.println("Navn: " + p.getFirstName());
-        }
 
         return ResponseEntity.ok(studentListResponse);
     }

@@ -1,9 +1,6 @@
 package com.booleanuk.cohorts.models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -55,24 +52,23 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "cohort_id", nullable = true)
-    @JsonIgnoreProperties({"users","cohort_courses"})
-    @JsonIgnore
+    @JsonIncludeProperties({"id", "cohort_courses"})
     private Cohort cohort;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonIncludeProperties({"id", "content", "likes", "timeCreated", "timeUpdated" })
     private List<Post> posts;
 
     @OneToMany
-    @JsonIgnore
+    @JsonIncludeProperties({"id","content", "likes" })
     private List<Post> likedPosts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonIncludeProperties({"id","body" })
     private List<Comment> comments;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"user", "role"})
+    @JsonIgnoreProperties({"user", "role", "cohort"})
     private Profile profile;
 
     public User(String email, String password) {

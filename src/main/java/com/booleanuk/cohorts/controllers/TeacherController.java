@@ -67,7 +67,27 @@ public class TeacherController {
 
         return new ResponseEntity<>(profileRepository.save(profile),HttpStatus.OK);
     }
+  
+    @GetMapping
+    public ResponseEntity<?> getAllTeachers(){
+        List<Profile> allProfiles = this.profileRepository.findAll();
 
+        List<Profile> teachers = new ArrayList<>();
+
+        for (Profile profile : allProfiles) {
+            if (profile.getRole() != null &&
+                    profile.getRole().getName() != null &&
+                    "ROLE_TEACHER".equals(profile.getRole().getName().name())) {
+                teachers.add(profile);
+            }
+        }
+
+        ProfileListResponse teacherListResponse = new ProfileListResponse();
+        teacherListResponse.set(teachers);
+
+        return ResponseEntity.ok(teacherListResponse);
+    }
+  
     @GetMapping("{id}")
     public ResponseEntity<?> getTeachersByCohortId(@PathVariable int id){
         Cohort cohort = cohortRepository.findById(id).orElse(null);
