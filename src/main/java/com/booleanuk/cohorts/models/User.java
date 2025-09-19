@@ -61,7 +61,7 @@ public class User {
     private List<Comment> comments;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"user", "cohort"})
+    @JsonIgnoreProperties({"user"})
     private Profile profile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
