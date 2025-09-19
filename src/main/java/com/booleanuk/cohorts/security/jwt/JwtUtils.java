@@ -37,6 +37,7 @@ public class JwtUtils {
                 .claim("userId", userPrincipal.getId())
                 .claim("firstName", userPrincipal.getFirstName())
                 .claim("lastName", userPrincipal.getLastName())
+                .claim("roleId", userPrincipal.getRoleId())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + this.jwtExpirationMs))
                 .signWith(this.key())
@@ -61,6 +62,10 @@ public class JwtUtils {
 
     public Integer getUserIdFromJwtToken(String token) {
         return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("userId", Integer.class);
+    }
+
+    public Integer getRoleIdFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("roleId", Integer.class);
     }
 
     public boolean validateJwtToken(String authToken) {
