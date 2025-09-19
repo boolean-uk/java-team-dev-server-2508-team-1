@@ -24,4 +24,9 @@ public class SignupRequest {
     private String password;
 
     private Cohort cohort;
+
+    public SignupRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

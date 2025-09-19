@@ -49,6 +49,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testImplementation 'com.h2database:h2'
 
 
 	// https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api

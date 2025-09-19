@@ -1,5 +1,6 @@
 package com.booleanuk.cohorts.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmailWithProfile(@Param("email") String email);
     
     Boolean existsByEmail(String email);
+
+    List<User> getTopById(int id);
 }
