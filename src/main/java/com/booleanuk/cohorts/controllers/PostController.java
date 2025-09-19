@@ -137,6 +137,15 @@ public class PostController {
         Post post = this.postRepository.findById(id).orElse(null);
         if (post == null) return notFoundResponse("Post not found");
 
+        // First, remove this post from all users' liked posts to avoid foreign key constraint violation
+        List<User> allUsers = this.userRepository.findAll();
+        for (User user : allUsers) {
+            if (user.getLikedPosts().contains(post)) {
+                user.getLikedPosts().remove(post);
+                this.userRepository.save(user);
+            }
+        }
+
         PostResponse postResponse = new PostResponse();
         postResponse.set(post);
         postRepository.delete(post);
