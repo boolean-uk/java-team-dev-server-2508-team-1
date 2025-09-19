@@ -44,7 +44,7 @@ public class ProfileController {
     @Autowired
     private UserRepository userRepository;
 
-    record PostProfile(
+    public record PostProfile(
             int userId,
             String first_name,
             String last_name,
