@@ -36,12 +36,12 @@ public class CourseController {
         Course course = courseRepository.findById(id).orElse(null);
         if (course == null) return new ResponseEntity<>("Course not found", HttpStatus.NOT_FOUND);
 
-        List<Cohort> cohorts = cohortRepository.findAll().stream().filter(it -> course.getCohorts().contains(it)).toList();
+        List<Cohort> cohorts = course.getCohorts();
         List<Profile> profiles = new ArrayList<>();
-        for (Cohort cohrt : cohorts) {
-            profiles.addAll(cohrt.getProfiles());
+        for (Cohort cohort : cohorts) {
+            profiles.addAll(cohort.getProfiles());
         }
-        List<Profile> students = profiles.stream().filter(it -> it.getRole().toString().equals("ROLE_STUDENT")).toList();
+        List<Profile> students = profiles.stream().filter(it -> it.getRole().getId() == 2).toList();
         ProfileListResponse profileListResponse = new ProfileListResponse();
         profileListResponse.set(students);
         return ResponseEntity.ok(profileListResponse);
