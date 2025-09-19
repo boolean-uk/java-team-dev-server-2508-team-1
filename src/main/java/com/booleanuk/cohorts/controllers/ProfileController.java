@@ -131,7 +131,6 @@ public class ProfileController {
 
         newProfile.setUser(user);
         user.setProfile(newProfile);
-        user.setCohort(cohort);
 
         try {
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);

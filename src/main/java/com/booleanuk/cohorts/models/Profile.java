@@ -23,12 +23,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-
-/*@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)*/
-
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(exclude = {"user", "cohort", "role"})

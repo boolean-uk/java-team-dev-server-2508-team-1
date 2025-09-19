@@ -11,12 +11,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
-/*
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
-*/
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,14 +25,10 @@ public class Cohort {
     @Column
     private String name;
 
-    @ManyToMany
+    @ManyToOne
+    @JoinColumn(name = "course_id")
     @JsonIgnoreProperties("cohorts")
-    @JoinTable(name = "cohort_course",
-            joinColumns = @JoinColumn(name = "cohort_id"),
-            inverseJoinColumns = @JoinColumn(name = "course_id")
-    )
-    private List<Course> cohort_courses;
-
+    private Course course;
 
     @OneToMany(mappedBy = "cohort", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("cohort")
@@ -59,8 +49,23 @@ public class Cohort {
         this.endDate = endDate;
     }
 
+    public Cohort(String name, List<Profile> profiles, Course course, LocalDate startDate, LocalDate endDate){
+        this.name = name;
+        this.profiles = profiles;
+        this.course = course;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     public Cohort(String name, LocalDate startDate, LocalDate endDate){
         this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public Cohort(String name, Course course, LocalDate startDate, LocalDate endDate){
+        this.name = name;
+        this.course = course;
         this.startDate = startDate;
         this.endDate = endDate;
     }

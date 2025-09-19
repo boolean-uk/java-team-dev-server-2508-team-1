@@ -89,9 +89,6 @@ public class AuthController {
 
         // Create a new user add salt here if using one
         User user = new User(signupRequest.getEmail(), encoder.encode(signupRequest.getPassword()));
-        if (signupRequest.getCohort() != null) {
-            user.setCohort(signupRequest.getCohort());
-        }
         Set<String> strRoles = signupRequest.getRole();
         Set<Role> roles = new HashSet<>();
 

@@ -13,16 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/*
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
-*/
-
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(exclude = {"profile", "posts", "comments", "likedPosts", "cohort"})
+@EqualsAndHashCode(exclude = {"profile", "posts", "comments", "likedPosts"})
 @Entity
 @Table(name = "users",
         uniqueConstraints = {
@@ -52,11 +45,6 @@ public class User {
     @JsonIgnore
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "cohort_id", nullable = true)
-    @JsonIncludeProperties({"id", "cohort_courses"})
-    private Cohort cohort;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIncludeProperties({"id", "content", "likes", "timeCreated", "timeUpdated" })
     private List<Post> posts;
@@ -84,15 +72,9 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String password, Cohort cohort) {
+    public User(String email, String password, Profile profile) {
         this.email = email;
         this.password = password;
-        this.cohort = cohort;
-    }
-    public User(String email, String password, Cohort cohort, Profile profile) {
-        this.email = email;
-        this.password = password;
-        this.cohort = cohort;
         this.profile = profile;
     }
 }
