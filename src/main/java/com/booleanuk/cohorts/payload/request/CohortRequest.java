@@ -10,7 +10,7 @@ import java.util.List;
 public class CohortRequest {
     private String name;
     private int courseId;
-    private String start_date;
-    private String end_date;
+    private String startDate;
+    private String endDate;
 
     public CohortRequest(){}}
