@@ -35,6 +35,8 @@ import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
 import com.booleanuk.cohorts.security.services.UserDetailsImpl;
 
+import static java.lang.Integer.parseInt;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("posts")
@@ -83,11 +85,11 @@ public class PostController {
 
     private void setAuthorInfo(Post post) {
         User user = post.getUser();
-        if (user != null && user.getCohort() != null) {
+        if (user != null) {
             Profile profile = user.getProfile();
 
             if (profile != null) {
-                Author author = new Author(user.getId(), user.getCohort().getId(), 
+                Author author = new Author(user.getId(), profile.getCohort().getId(),
                     profile.getFirstName(), profile.getLastName(), user.getEmail(), 
                     profile.getBio(), profile.getGithubUrl());
                 post.setAuthor(author);

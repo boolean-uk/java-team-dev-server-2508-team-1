@@ -113,7 +113,6 @@ public class StudentController {
         profileRepository.save(profile);
 
         user.setProfile(profile);
-        user.setCohort(profile.getCohort());
 
         try {
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);

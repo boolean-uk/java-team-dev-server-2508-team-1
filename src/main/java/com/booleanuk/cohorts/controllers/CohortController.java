@@ -2,21 +2,20 @@ package com.booleanuk.cohorts.controllers;
 
 import com.booleanuk.cohorts.models.*;
 import com.booleanuk.cohorts.payload.request.CohortRequest;
+import com.booleanuk.cohorts.payload.request.CohortRequestWithProfiles;
 import com.booleanuk.cohorts.payload.request.ProfileRequest;
 import com.booleanuk.cohorts.payload.response.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.CourseRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,76 +69,59 @@ public class CohortController {
         return new ResponseEntity<>(cohortResponse, HttpStatus.OK);
     }
 
+    @PostMapping
+    public ResponseEntity<?> addCohort(@RequestBody CohortRequest cohortRequest){
+
+        Course course = courseRepository.findById(cohortRequest.getCourseId()).orElse(null);
+        if (course == null) return new ResponseEntity<>("Course not found", HttpStatus.NOT_FOUND);
+
+        String name = cohortRequest.getName();
+        if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
+
+        String startDate = cohortRequest.getStartDate();
+        String endDate = cohortRequest.getEndDate();
+        if (startDate.isBlank() || endDate.isBlank()) return new ResponseEntity<>("Date cannot be blank", HttpStatus.BAD_REQUEST);
+
+        Cohort cohort = new Cohort(cohortRequest.getName(), course, LocalDate.parse(startDate), LocalDate.parse(endDate));
+        return ResponseEntity.ok(cohortRepository.save(cohort));
+    }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> editCohortById(@PathVariable int id, @RequestBody CohortRequest cohortRequest){
+    public ResponseEntity<?> editCohortById(@PathVariable int id, @RequestBody CohortRequestWithProfiles cohortRequest) {
         Cohort cohort = cohortRepository.findById(id).orElse(null);
-        if (cohort == null){
+        if (cohort == null) {
             return new ResponseEntity<>("Cohort not found", HttpStatus.NOT_FOUND);
         }
+        Course course = courseRepository.findById(cohortRequest.getCourseId()).orElse(null);
+        if (course == null) return new ResponseEntity<>("Course not found", HttpStatus.NOT_FOUND);
 
-        List<Profile> profilesToInclude = cohortRequest.getProfileIds().stream()
-                .map(profileId -> profileRepository.findById(profileId)
-                .orElseThrow(() -> new RuntimeException("Profile with id " + profileId + " not found")))
-                .toList();
+        String name = cohortRequest.getName();
+        if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
 
-        List<Course> courses = cohortRequest.getCourseIds().stream()
-                .map(courseId -> courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Profile with id " + courseId + " not found")))
-                .collect(Collectors.toList());
+        String startDate = cohortRequest.getStartDate();
+        String endDate = cohortRequest.getEndDate();
 
-        if (cohortRequest.getName().isBlank()) {
-            return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
-        }
-
-        if (cohortRequest.getStart_date().isBlank() || cohortRequest.getEnd_date().isBlank()) {
+        if (startDate.isBlank() || endDate.isBlank())
             return new ResponseEntity<>("Date cannot be blank", HttpStatus.BAD_REQUEST);
+
+        List<Profile> profiles = profileRepository.findAll().stream().filter(it -> cohortRequest.getProfileIds().contains(it.getId())).collect(Collectors.toList());
+        for (Profile oldProfile : new ArrayList<>(cohort.getProfiles())) {
+            if (!profiles.contains(oldProfile)) {
+                oldProfile.setCohort(null);
+            }
         }
 
-        cohort.setCohort_courses(courses);
+        for (Profile newProfile : profiles) {
+            newProfile.setCohort(cohort);
+        }
 
-        List<User> usersToInclude = userRepository.findAll().stream().filter(it ->
-                profilesToInclude.contains(it.getProfile())).toList();
-
-        List<User> usersToExclude = userRepository.findAll().stream().filter(it ->
-                it.getCohort().getId() == cohort.getId() && !(profilesToInclude.contains(it.getProfile()))).toList();
-
-        List<Profile> profilesToExclude = usersToExclude.stream().map(User::getProfile).toList().stream().filter(it ->
-                it.getCohort().getId() == cohort.getId() && !(profilesToInclude.contains(it))).toList();
-
+        cohort.setProfiles(profiles);
+        cohort.setCourse(course);
         cohort.setName(cohortRequest.getName());
-        cohort.setStartDate(LocalDate.parse(cohortRequest.getStart_date()));
-        cohort.setEndDate(LocalDate.parse(cohortRequest.getEnd_date()));
+        cohort.setStartDate(LocalDate.parse(startDate));
+        cohort.setEndDate(LocalDate.parse(endDate));
 
-        Cohort cohortRes = cohortRepository.findById(99).orElse(null);
-        if (cohortRes == null) {
-            return new ResponseEntity<>("Could not find RESERVE", HttpStatus.BAD_REQUEST);
-        }
-
-        for (User user: usersToExclude){
-            user.setCohort(cohortRes);
-        }
-
-        for (Profile profile: profilesToExclude){
-            profile.setCohort(cohortRes);
-            List<Profile> prevProf = cohortRes.getProfiles();
-            prevProf.add(profile);
-            cohortRes.setProfiles(prevProf);
-        }
-
-        for (User user: usersToInclude){
-            user.setCohort(cohort);
-        }
-        for (Profile prof : profilesToInclude){
-            prof.setCohort(cohort);
-        }
-        profileRepository.saveAll(profilesToInclude);
-        profileRepository.saveAll(profilesToExclude);
-        userRepository.saveAll(usersToInclude);
-        userRepository.saveAll(usersToExclude);
-        cohortRepository.save(cohortRes);
-
-        return new ResponseEntity<>(cohortRepository.save(cohort), HttpStatus.OK);
+        return ResponseEntity.ok(cohortRepository.save(cohort));
     }
 
     @PatchMapping("/teacher/{id}")
@@ -147,13 +129,10 @@ public class CohortController {
         Cohort cohort = cohortRepository.findById(id).orElse(null);
         if (cohort == null) return new ResponseEntity<>("Cohort for id " + Integer.valueOf(id) + " not found", HttpStatus.NOT_FOUND);
 
-        Profile profile = profileRepository.findById(profileRequest.getUserId()).orElse(null);
+        Profile profile = profileRepository.findById(profileRequest.getProfileId()).orElse(null);
         if (profile == null) return new ResponseEntity<>("Profile not found", HttpStatus.NOT_FOUND);
 
-        Cohort updatedCohort = cohortRepository.findById(profileRequest.getCohort()).orElse(null);
-        if (updatedCohort == null) return new ResponseEntity<>("Cohort not found", HttpStatus.NOT_FOUND);
-
-        profile.setCohort(updatedCohort);
+        profile.setCohort(cohort);
 
         return new ResponseEntity<>(profileRepository.save(profile), HttpStatus.OK);
     }
