@@ -23,19 +23,21 @@ public class UserDetailsImpl  implements UserDetails {
     private final String email;
     private final String firstName;
     private final String lastName;
+    private final Integer roleId;
 
     @JsonIgnore
     private final String password;
 
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(int id, String username, String email, String password, String firstName, String lastName, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(int id, String username, String email, String password, String firstName, String lastName, Integer roleId, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = email;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.roleId = roleId;
         this.authorities = authorities;
     }
 
@@ -55,6 +57,12 @@ public class UserDetailsImpl  implements UserDetails {
         } else {
             System.out.println("No profile found for user " + user.getEmail());
         }
+
+        // Get the first role's ID (assuming users have only one primary role)
+        Integer roleId = null;
+        if (!user.getRoles().isEmpty()) {
+            roleId = user.getRoles().iterator().next().getId();
+        }
         
         return new UserDetailsImpl(
                 user.getId(),
@@ -63,6 +71,7 @@ public class UserDetailsImpl  implements UserDetails {
                 user.getPassword(),
                 firstName,
                 lastName,
+                roleId,
                 authorities);
     }
 
