@@ -1,6 +1,5 @@
 package com.booleanuk;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -75,42 +74,27 @@ public class Main implements CommandLineRunner {
             // LARGE DATABASE: 4 cohorts per course (12 total)
             
             // Software Development cohorts (4 cohorts)
-            allCohorts.add(createOrGetCohort("Software Development 2024 Q1", 
-                javaFundamentals, LocalDate.of(2024, 1, 15), LocalDate.of(2024, 6, 15)));
-            allCohorts.add(createOrGetCohort("Software Development 2024 Q2", 
-                javaFundamentals, LocalDate.of(2024, 4, 1), LocalDate.of(2024, 9, 1)));
-            allCohorts.add(createOrGetCohort("Software Development 2025 Q1", 
-                javaFundamentals, LocalDate.of(2025, 1, 15), LocalDate.of(2025, 6, 15)));
-            allCohorts.add(createOrGetCohort("Software Development 2025 Q2", 
-                javaFundamentals, LocalDate.of(2025, 4, 1), LocalDate.of(2025, 9, 1)));
+            allCohorts.add(createOrGetCohort("Software Development 2024 Q1", javaFundamentals));
+            allCohorts.add(createOrGetCohort("Software Development 2024 Q2", javaFundamentals));
+            allCohorts.add(createOrGetCohort("Software Development 2025 Q1", javaFundamentals));
+            allCohorts.add(createOrGetCohort("Software Development 2025 Q2", javaFundamentals));
 
             // Front-End Development cohorts (4 cohorts)
-            allCohorts.add(createOrGetCohort("Front-End Development 2024 Q1", 
-                springBoot, LocalDate.of(2024, 2, 1), LocalDate.of(2024, 7, 1)));
-            allCohorts.add(createOrGetCohort("Front-End Development 2024 Q2", 
-                springBoot, LocalDate.of(2024, 5, 1), LocalDate.of(2024, 10, 1)));
-            allCohorts.add(createOrGetCohort("Front-End Development 2025 Q1", 
-                springBoot, LocalDate.of(2025, 2, 1), LocalDate.of(2025, 7, 1)));
-            allCohorts.add(createOrGetCohort("Front-End Development 2025 Q2", 
-                springBoot, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 10, 1)));
+            allCohorts.add(createOrGetCohort("Front-End Development 2024 Q1", springBoot));
+            allCohorts.add(createOrGetCohort("Front-End Development 2024 Q2", springBoot));
+            allCohorts.add(createOrGetCohort("Front-End Development 2025 Q1", springBoot));
+            allCohorts.add(createOrGetCohort("Front-End Development 2025 Q2", springBoot));
 
             // Data Analytics cohorts (4 cohorts)
-            allCohorts.add(createOrGetCohort("Data Analytics 2024 Q1", 
-                reactFundamentals, LocalDate.of(2024, 3, 1), LocalDate.of(2024, 8, 1)));
-            allCohorts.add(createOrGetCohort("Data Analytics 2024 Q2", 
-                reactFundamentals, LocalDate.of(2024, 6, 1), LocalDate.of(2024, 11, 1)));
-            allCohorts.add(createOrGetCohort("Data Analytics 2025 Q1", 
-                reactFundamentals, LocalDate.of(2025, 3, 1), LocalDate.of(2025, 8, 1)));
-            allCohorts.add(createOrGetCohort("Data Analytics 2025 Q2", 
-                reactFundamentals, LocalDate.of(2025, 6, 1), LocalDate.of(2025, 11, 1)));
+            allCohorts.add(createOrGetCohort("Data Analytics 2024 Q1", reactFundamentals));
+            allCohorts.add(createOrGetCohort("Data Analytics 2024 Q2", reactFundamentals));
+            allCohorts.add(createOrGetCohort("Data Analytics 2025 Q1", reactFundamentals));
+            allCohorts.add(createOrGetCohort("Data Analytics 2025 Q2", reactFundamentals));
         } else {
             // SMALL DATABASE: 1 cohort per course (3 total)
-            allCohorts.add(createOrGetCohort("Software Development 2025", 
-                javaFundamentals, LocalDate.of(2025, 1, 15), LocalDate.of(2025, 6, 15)));
-            allCohorts.add(createOrGetCohort("Front-End Development 2025", 
-                springBoot, LocalDate.of(2025, 2, 1), LocalDate.of(2025, 7, 1)));
-            allCohorts.add(createOrGetCohort("Data Analytics 2025", 
-                reactFundamentals, LocalDate.of(2025, 3, 1), LocalDate.of(2025, 8, 1)));
+            allCohorts.add(createOrGetCohort("Software Development 2025", javaFundamentals));
+            allCohorts.add(createOrGetCohort("Front-End Development 2025", springBoot));
+            allCohorts.add(createOrGetCohort("Data Analytics 2025", reactFundamentals));
         }
 
         
@@ -120,7 +104,7 @@ public class Main implements CommandLineRunner {
             Profile johnProfile = new Profile(teacherJohn, "John", "Smith", "johnsmith", 
                 "https://github.com/johnsmith", "+44123456790", 
                 "Experienced Java developer and educator with 10+ years in software development.", 
-                teacherRole, "Java Development", allCohorts.get(0), LocalDate.of(2024, 1, 10), null, null);
+                teacherRole, "Java Development", allCohorts.get(0), null);
             profileRepository.save(johnProfile);
             teacherJohn.setProfile(johnProfile);
             userRepository.save(teacherJohn);
@@ -131,7 +115,7 @@ public class Main implements CommandLineRunner {
             Profile sarahProfile = new Profile(teacherSarah, "Sarah", "Jones", "sarahjones", 
                 "https://github.com/sarahjones", "+44123456791", 
                 "Frontend specialist with expertise in React and modern web technologies.", 
-                teacherRole, "Frontend Development", allCohorts.get(1), LocalDate.of(2025, 1, 25), null, null);
+                teacherRole, "Frontend Development", allCohorts.get(1), null);
             profileRepository.save(sarahProfile);
             teacherSarah.setProfile(sarahProfile);
             userRepository.save(teacherSarah);
@@ -173,8 +157,7 @@ public class Main implements CommandLineRunner {
                     "https://github.com/" + firstName.toLowerCase() + lastName.toLowerCase() + i, 
                     "+4412345679" + String.format("%03d", i), 
                     "Passionate about learning software development and building amazing applications.", 
-                    studentRole, "Software Development", assignedCohort, 
-                    assignedCohort.getStartDate(), assignedCohort.getEndDate(), null);
+                    studentRole, "Software Development", assignedCohort, null);
                 profileRepository.save(studentProfile);
                 student.setProfile(studentProfile);
                 student = userRepository.save(student);
@@ -208,14 +191,25 @@ public class Main implements CommandLineRunner {
         
         System.out.println("Sample data initialization completed!");
         System.out.println("Created:");
-        System.out.println("- 3 roles (Admin, Teacher, Student)");
-        System.out.println("- 3 courses");
-        System.out.println("- 12 cohorts (4 per course)");
-        System.out.println("- " + (2 + students.size()) + " users with profiles (2 teachers + " + students.size() + " students)");
-        System.out.println("- 30 students per cohort across 12 cohorts");
-        System.out.println("- Software Development: 4 cohorts (120 students)");
-        System.out.println("- Front-End Development: 4 cohorts (120 students)");
-        System.out.println("- Data Analytics: 4 cohorts (120 students)");
+        System.out.println("- 2 roles (Teacher, Student)");
+        System.out.println("- 3 courses (Software Development, Front-End Development, Data Analytics)");
+        
+        if (USE_LARGE_DATABASE) {
+            System.out.println("- 12 cohorts (4 per course)");
+            System.out.println("- " + (2 + students.size()) + " users with profiles (2 teachers + " + students.size() + " students)");
+            System.out.println("- 30 students per cohort across 12 cohorts (360 total students)");
+            System.out.println("  - Software Development: 4 cohorts (120 students)");
+            System.out.println("  - Front-End Development: 4 cohorts (120 students)");
+            System.out.println("  - Data Analytics: 4 cohorts (120 students)");
+        } else {
+            System.out.println("- 3 cohorts (1 per course)");
+            System.out.println("- " + (2 + students.size()) + " users with profiles (2 teachers + " + students.size() + " students)");
+            System.out.println("- 10 students per cohort across 3 cohorts (30 total students)");
+            System.out.println("  - Software Development: 1 cohort (10 students)");
+            System.out.println("  - Front-End Development: 1 cohort (10 students)");
+            System.out.println("  - Data Analytics: 1 cohort (10 students)");
+        }
+        
         System.out.println("- " + samplePosts.size() + " sample posts");
     }
     
@@ -243,13 +237,12 @@ public class Main implements CommandLineRunner {
             .orElseGet(() -> courseRepository.save(new Course(name)));
     }
     
-    private Cohort createOrGetCohort(String name, Course course, LocalDate startDate, LocalDate endDate) {
+    private Cohort createOrGetCohort(String name, Course course) {
         return cohortRepository.findAll().stream()
             .filter(cohort -> cohort.getName().equals(name))
             .findFirst()
             .orElseGet(() -> {
-                Cohort cohort = new Cohort(name, startDate, endDate);
-                cohort.setCourse(course);
+                Cohort cohort = new Cohort(name, course);
                 return cohortRepository.save(cohort);
             });
     }
