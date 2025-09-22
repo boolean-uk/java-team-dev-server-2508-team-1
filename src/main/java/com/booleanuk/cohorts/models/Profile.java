@@ -1,6 +1,5 @@
 package com.booleanuk.cohorts.models;
 
-import java.time.LocalDate;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -67,11 +66,6 @@ public class Profile {
     @Column
     private String specialism;
 
-    @Column
-    private LocalDate startDate;
-
-    @Column
-    private LocalDate endDate;
 
     @ManyToOne
     @JoinColumn(name = "cohort_id")
@@ -91,7 +85,7 @@ public class Profile {
     }
 
     public Profile(User user, String firstName, String lastName, String username, String githubUrl, String mobile,
-                   String bio, Role role, String specialism, Cohort cohort, LocalDate startDate, LocalDate endDate, String photo) {
+                   String bio, Role role, String specialism, Cohort cohort, String photo) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -102,8 +96,6 @@ public class Profile {
         this.role = role;
         this.specialism = specialism;
         this.cohort = cohort;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.photo = photo;
     }
 }

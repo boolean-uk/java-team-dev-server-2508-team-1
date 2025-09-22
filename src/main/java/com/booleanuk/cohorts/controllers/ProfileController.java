@@ -1,6 +1,5 @@
 package com.booleanuk.cohorts.controllers;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
@@ -120,8 +119,6 @@ public class ProfileController {
                     role,
                     profile.specialism,
                     cohort,
-                    LocalDate.parse(profile.start_date),
-                    LocalDate.parse(profile.end_date),
                     profile.photo
                     );
         } catch (DateTimeParseException e) {
