@@ -13,8 +13,6 @@ public class CohortRequestWithProfiles {
     private String name;
     private int courseId;
     private List<Integer> profileIds;
-    private String startDate;
-    private String endDate;
 
     public CohortRequestWithProfiles(){}}
 

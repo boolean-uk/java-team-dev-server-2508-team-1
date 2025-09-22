@@ -61,8 +61,6 @@ public class TeacherController {
 
         profile.setCohort(cohort);
         profile.setRole(role);
-        profile.setStartDate(teacherEditStudentRequest.getStart_date());
-        profile.setEndDate(teacherEditStudentRequest.getEnd_date());
 
 
         return new ResponseEntity<>(profileRepository.save(profile),HttpStatus.OK);

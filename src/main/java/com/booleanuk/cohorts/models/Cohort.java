@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
@@ -34,47 +33,30 @@ public class Cohort {
     @JsonIgnoreProperties("cohort")
     private List<Profile> profiles;
 
-    @Column
-    private LocalDate startDate;
-
-    @Column
-    private LocalDate endDate;
 
     public Cohort(int id) {
         this.id = id;
     }
 
-    public Cohort(LocalDate startDate, LocalDate endDate){
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
 
-    public Cohort(String name, List<Profile> profiles, Course course, LocalDate startDate, LocalDate endDate){
+    public Cohort(String name, List<Profile> profiles, Course course){
         this.name = name;
         this.profiles = profiles;
         this.course = course;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
-    public Cohort(String name, LocalDate startDate, LocalDate endDate){
+    public Cohort(String name){
         this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
-    public Cohort(String name, Course course, LocalDate startDate, LocalDate endDate){
+    public Cohort(String name, Course course){
         this.name = name;
         this.course = course;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
-    public Cohort(int id, String name, LocalDate startDate, LocalDate endDate) {
+    public Cohort(int id, String name) {
         this.id = id;
         this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 
     @Override

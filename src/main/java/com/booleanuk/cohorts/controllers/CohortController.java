@@ -10,11 +10,9 @@ import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.CourseRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,11 +76,8 @@ public class CohortController {
         String name = cohortRequest.getName();
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
 
-        String startDate = cohortRequest.getStartDate();
-        String endDate = cohortRequest.getEndDate();
-        if (startDate.isBlank() || endDate.isBlank()) return new ResponseEntity<>("Date cannot be blank", HttpStatus.BAD_REQUEST);
 
-        Cohort cohort = new Cohort(cohortRequest.getName(), course, LocalDate.parse(startDate), LocalDate.parse(endDate));
+        Cohort cohort = new Cohort(cohortRequest.getName(), course);
         return ResponseEntity.ok(cohortRepository.save(cohort));
     }
 
@@ -98,11 +93,6 @@ public class CohortController {
         String name = cohortRequest.getName();
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
 
-        String startDate = cohortRequest.getStartDate();
-        String endDate = cohortRequest.getEndDate();
-
-        if (startDate.isBlank() || endDate.isBlank())
-            return new ResponseEntity<>("Date cannot be blank", HttpStatus.BAD_REQUEST);
 
         List<Profile> profiles = profileRepository.findAll().stream().filter(it -> cohortRequest.getProfileIds().contains(it.getId())).collect(Collectors.toList());
         for (Profile oldProfile : new ArrayList<>(cohort.getProfiles())) {
@@ -118,8 +108,6 @@ public class CohortController {
         cohort.setProfiles(profiles);
         cohort.setCourse(course);
         cohort.setName(cohortRequest.getName());
-        cohort.setStartDate(LocalDate.parse(startDate));
-        cohort.setEndDate(LocalDate.parse(endDate));
 
         return ResponseEntity.ok(cohortRepository.save(cohort));
     }

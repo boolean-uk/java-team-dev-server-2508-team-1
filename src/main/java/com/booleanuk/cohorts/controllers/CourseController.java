@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,8 +62,18 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<Response> createCourse(@RequestBody CourseRequest courseRequest){
-        Course course = new Course(courseRequest.getName());
+    public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest){
+        Course course = new Course();
+        String startDate = courseRequest.getStartDate();
+        String endDate = courseRequest.getEndDate();
+
+
+        if (startDate.isBlank() || endDate.isBlank())
+            return new ResponseEntity<>("Date cannot be blank", HttpStatus.BAD_REQUEST);
+
+        course.setName(courseRequest.getName());
+        course.setStartDate(LocalDate.parse(courseRequest.getStartDate()));
+        course.setEndDate(LocalDate.parse(courseRequest.getEndDate()));
         Course saveCourse = this.courseRepository.save(course);
         CourseResponse courseResponse = new CourseResponse();
         courseResponse.set(saveCourse);
