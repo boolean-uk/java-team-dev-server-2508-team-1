@@ -47,9 +47,6 @@ public class ProfileControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private SearchController searchController;
-
-    @Autowired
     AuthController authController;
 
     @Autowired
