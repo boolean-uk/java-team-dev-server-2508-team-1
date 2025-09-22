@@ -77,7 +77,7 @@ public class Profile {
     @JsonIgnoreProperties("cohort")
     private Role role;
 
-    @Column(length = 25000000)
+    @Column(length = 2500000)
     private String photo;
 
     public Profile(int id) {
