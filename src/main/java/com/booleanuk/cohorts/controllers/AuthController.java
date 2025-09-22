@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.booleanuk.cohorts.models.ERole;
 import com.booleanuk.cohorts.models.Role;
 import com.booleanuk.cohorts.models.User;
@@ -25,6 +27,7 @@ import com.booleanuk.cohorts.payload.request.LoginRequest;
 import com.booleanuk.cohorts.payload.request.SignupRequest;
 import com.booleanuk.cohorts.payload.response.JwtResponse;
 import com.booleanuk.cohorts.payload.response.MessageResponse;
+import com.booleanuk.cohorts.payload.response.RefreshTokenResponse;
 import com.booleanuk.cohorts.payload.response.TokenResponse;
 import com.booleanuk.cohorts.repository.RoleRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
@@ -116,5 +119,46 @@ public class AuthController {
         user.setRoles(roles);
         userRepository.save(user);
         return ResponseEntity.ok((new MessageResponse("User registered successfully")));
+    }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+        try {
+            // 1. Extract token from Authorization header
+            String headerAuth = request.getHeader("Authorization");
+            if (headerAuth == null || !headerAuth.startsWith("Bearer ")) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Authorization header missing or invalid"));
+            }
+            
+            String token = headerAuth.substring(7);
+            
+            // 2. Validate the token (allowing expired tokens for refresh)
+            if (!jwtUtils.validateJwtTokenForRefresh(token)) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Invalid token"));
+            }
+            
+            // 3. Decode token to get user email (handling expired tokens)
+            String userEmail = jwtUtils.getUserNameFromExpiredJwtToken(token);
+            
+            // 4. Fetch updated user from database
+            User user = userRepository.findByEmailWithProfile(userEmail).orElse(null);
+            if (user == null) {
+                return ResponseEntity.badRequest().body(new MessageResponse("User not found"));
+            }
+            
+            // 5. Create new authentication object with fresh user data
+            UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+            UsernamePasswordAuthenticationToken authentication = 
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            
+            // 6. Generate new token with fresh user data
+            String newJwt = jwtUtils.generateJwtToken(authentication);
+            
+            // 7. Return new token in response
+            return ResponseEntity.ok(new RefreshTokenResponse(newJwt, "Token refreshed successfully"));
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error refreshing token: " + e.getMessage()));
+        }
     }
 }

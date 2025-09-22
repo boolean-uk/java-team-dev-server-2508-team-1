@@ -41,3 +41,5 @@ application.yml
 build
 .DS_Store
 application-azuread.yml
+*.yml
+Maincopy.md
