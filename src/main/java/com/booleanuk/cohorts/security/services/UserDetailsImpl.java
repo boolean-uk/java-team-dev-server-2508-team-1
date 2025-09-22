@@ -24,13 +24,15 @@ public class UserDetailsImpl  implements UserDetails {
     private final String firstName;
     private final String lastName;
     private final Integer roleId;
+    private final String specialism;
+    private final Integer cohortId;
 
     @JsonIgnore
     private final String password;
 
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(int id, String username, String email, String password, String firstName, String lastName, Integer roleId, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(int id, String username, String email, String password, String firstName, String lastName, Integer roleId, String specialism, Integer cohortId, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = email;
         this.email = email;
@@ -38,6 +40,8 @@ public class UserDetailsImpl  implements UserDetails {
         this.firstName = firstName;
         this.lastName = lastName;
         this.roleId = roleId;
+        this.specialism = specialism;
+        this.cohortId = cohortId;
         this.authorities = authorities;
     }
 
@@ -49,10 +53,16 @@ public class UserDetailsImpl  implements UserDetails {
         // Get firstName and lastName from profile, with fallbacks if profile is null
         String firstName = "";
         String lastName = "";
+        String specialism = "";
+        Integer cohortId = null;
         
         if (user.getProfile() != null) {
             firstName = user.getProfile().getFirstName() != null ? user.getProfile().getFirstName() : "";
             lastName = user.getProfile().getLastName() != null ? user.getProfile().getLastName() : "";
+            specialism = user.getProfile().getSpecialism() != null ? user.getProfile().getSpecialism() : "";
+            if (user.getProfile().getCohort() != null) {
+                cohortId = user.getProfile().getCohort().getId();
+            }
             System.out.println("Profile found for user " + user.getEmail() + ": " + firstName + " " + lastName);
         } else {
             System.out.println("No profile found for user " + user.getEmail());
@@ -72,6 +82,8 @@ public class UserDetailsImpl  implements UserDetails {
                 firstName,
                 lastName,
                 roleId,
+                specialism,
+                cohortId,
                 authorities);
     }
 

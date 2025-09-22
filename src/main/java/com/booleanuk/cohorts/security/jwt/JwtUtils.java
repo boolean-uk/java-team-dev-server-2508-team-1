@@ -38,6 +38,8 @@ public class JwtUtils {
                 .claim("firstName", userPrincipal.getFirstName())
                 .claim("lastName", userPrincipal.getLastName())
                 .claim("roleId", userPrincipal.getRoleId())
+                .claim("specialism", userPrincipal.getSpecialism())
+                .claim("cohortId", userPrincipal.getCohortId())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + this.jwtExpirationMs))
                 .signWith(this.key())
@@ -68,6 +70,14 @@ public class JwtUtils {
         return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("roleId", Integer.class);
     }
 
+    public String getSpecialismFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("specialism", String.class);
+    }
+
+    public Integer getCohortIdFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("cohortId", Integer.class);
+    }
+
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().verifyWith(this.key()).build().parse(authToken);
@@ -82,6 +92,35 @@ public class JwtUtils {
             logger.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
+    }
+
+    public boolean validateJwtTokenForRefresh(String authToken) {
+        try {
+            Jwts.parser().verifyWith(this.key()).build().parse(authToken);
+            return true;
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+            return false;
+        } catch (ExpiredJwtException e) {
+            // For refresh, we allow expired tokens to be processed
+            logger.info("JWT token has expired but allowing for refresh: {}", e.getMessage());
+            return true;
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT token is unsupported: {}", e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public String getUserNameFromExpiredJwtToken(String token) {
+        try {
+            return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().getSubject();
+        } catch (ExpiredJwtException e) {
+            // Extract username from expired token
+            return e.getClaims().getSubject();
+        }
     }
 }
 
