@@ -79,21 +79,32 @@ public class UserController {
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
 
+        // 1. Fjern likes brukeren selv har gitt
         for (Post likedPost : new HashSet<>(user.getLikedPosts())) {
             likedPost.getLikedByUsers().remove(user);
         }
         user.getLikedPosts().clear();
 
+        // 2. Fjern likes andre brukere har gitt på brukerens egne posts
+        for (Post post : new HashSet<>(user.getPosts())) {
+            for (User liker : new HashSet<>(post.getLikedByUsers())) {
+                liker.getLikedPosts().remove(post);
+            }
+            post.getLikedByUsers().clear();
+        }
+
         UserResponse userResponse = new UserResponse();
         userResponse.set(user);
 
         try {
-            userRepository.delete(user);
+            userRepository.delete(user); // cascade sletter posts, comments, profile, notes
             return ResponseEntity.ok(userResponse);
         } catch (Exception e) {
             return new ResponseEntity<>("Could not delete user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
     @PatchMapping("{user_id}/like")
     public ResponseEntity<Response> updateLikedPosts(@PathVariable int user_id, @RequestBody PostId postId){
