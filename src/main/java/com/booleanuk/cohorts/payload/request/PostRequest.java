@@ -18,5 +18,4 @@ public class PostRequest {
         this.content = content;
         this.userId = userId;
     }
-
 }

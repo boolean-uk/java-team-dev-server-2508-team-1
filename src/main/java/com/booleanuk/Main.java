@@ -28,12 +28,12 @@ import com.booleanuk.cohorts.repository.UserRepository;
 
 @SpringBootApplication
 public class Main implements CommandLineRunner {
-    
+
     // DATABASE SIZE CONFIGURATION
     // Set to true for LARGE database: 3 courses, 4 cohorts per course (12 total), 30 students per cohort (360 total)
     // Set to false for SMALL database: 3 courses, 1 cohort per course (3 total), 10 students per cohort (30 total)
     private static final boolean USE_LARGE_DATABASE = false;
-    
+
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -56,23 +56,23 @@ public class Main implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("Initializing sample data...");
-        
+
         // Create roles
-        
+
         Role teacherRole = createOrGetRole(ERole.ROLE_TEACHER);
         Role studentRole = createOrGetRole(ERole.ROLE_STUDENT);
-        
+
         // Create courses
         Course javaFundamentals = createOrGetCourse("Software Development");
         Course springBoot = createOrGetCourse("Front-End Development");
         Course reactFundamentals = createOrGetCourse("Data Analytics");
-        
+
         // Create cohorts based on configuration
         List<Cohort> allCohorts = new ArrayList<>();
-        
+
         if (USE_LARGE_DATABASE) {
             // LARGE DATABASE: 4 cohorts per course (12 total)
-            
+
             // Software Development cohorts (4 cohorts)
             allCohorts.add(createOrGetCohort("Software Development 2024 Q1", javaFundamentals));
             allCohorts.add(createOrGetCohort("Software Development 2024 Q2", javaFundamentals));
@@ -97,30 +97,30 @@ public class Main implements CommandLineRunner {
             allCohorts.add(createOrGetCohort("Data Analytics 2025", reactFundamentals));
         }
 
-        
+
         // Create teacher users
         User teacherJohn = createUser("t@t.com", "p", teacherRole);
         if (teacherJohn.getProfile() == null) {
-            Profile johnProfile = new Profile(teacherJohn, "John", "Smith", "johnsmith", 
-                "https://github.com/johnsmith", "+44123456790", 
-                "Experienced Java developer and educator with 10+ years in software development.", 
+            Profile johnProfile = new Profile(teacherJohn, "John", "Smith", "johnsmith",
+                "https://github.com/johnsmith", "+44123456790",
+                "Experienced Java developer and educator with 10+ years in software development.",
                 teacherRole, "Java Development", allCohorts.get(0), null);
             profileRepository.save(johnProfile);
             teacherJohn.setProfile(johnProfile);
             userRepository.save(teacherJohn);
         }
-        
+
         User teacherSarah = createUser("tt@t.com", "p", teacherRole);
         if (teacherSarah.getProfile() == null) {
-            Profile sarahProfile = new Profile(teacherSarah, "Sarah", "Jones", "sarahjones", 
-                "https://github.com/sarahjones", "+44123456791", 
-                "Frontend specialist with expertise in React and modern web technologies.", 
+            Profile sarahProfile = new Profile(teacherSarah, "Sarah", "Jones", "sarahjones",
+                "https://github.com/sarahjones", "+44123456791",
+                "Frontend specialist with expertise in React and modern web technologies.",
                 teacherRole, "Frontend Development", allCohorts.get(1), null);
             profileRepository.save(sarahProfile);
             teacherSarah.setProfile(sarahProfile);
             userRepository.save(teacherSarah);
         }
-        
+
         // Create student users
         List<User> students = new ArrayList<>();
         String[] firstNames = {
@@ -137,11 +137,11 @@ public class Main implements CommandLineRunner {
             "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott", "Green", "Adams",
             "Baker", "Gonzalez", "Nelson", "Carter", "Mitchell", "Perez", "Roberts", "Turner"
         };
-        
+
         // Create students based on configuration
         int totalStudents = USE_LARGE_DATABASE ? 360 : 30;  // 360 for large (30 per cohort), 30 for small (10 per cohort)
         int studentsPerCohort = USE_LARGE_DATABASE ? 30 : 10;
-        
+
         for (int i = 0; i < totalStudents; i++) {
             String firstName = firstNames[i % firstNames.length];
             String lastName = lastNames[i % lastNames.length];
@@ -151,12 +151,12 @@ public class Main implements CommandLineRunner {
             if (student.getProfile() == null) {
                 // Distribute students evenly across all cohorts
                 Cohort assignedCohort = allCohorts.get(i / studentsPerCohort);
-                
-                Profile studentProfile = new Profile(student, firstName, lastName, 
-                    firstName.toLowerCase() + lastName.toLowerCase() + i, 
-                    "https://github.com/" + firstName.toLowerCase() + lastName.toLowerCase() + i, 
-                    "+4412345679" + String.format("%03d", i), 
-                    "Passionate about learning software development and building amazing applications.", 
+
+                Profile studentProfile = new Profile(student, firstName, lastName,
+                    firstName.toLowerCase() + lastName.toLowerCase() + i,
+                    "https://github.com/" + firstName.toLowerCase() + lastName.toLowerCase() + i,
+                    "+4412345679" + String.format("%03d", i),
+                    "Passionate about learning software development and building amazing applications.",
                     studentRole, "Software Development", assignedCohort, null);
                 profileRepository.save(studentProfile);
                 student.setProfile(studentProfile);
@@ -164,7 +164,7 @@ public class Main implements CommandLineRunner {
             }
             students.add(student);
         }
-        
+
         // Create sample posts
         List<String> samplePosts = Arrays.asList(
             "Just finished my first Java application! Excited to learn more about Spring Boot.",
@@ -178,7 +178,7 @@ public class Main implements CommandLineRunner {
             "Code review session was very helpful. Learning from others is invaluable.",
             "Working on the final project. Bringing everything together is challenging but rewarding."
         );
-        
+
         // Create posts from different users (only if no posts exist)
         if (postRepository.count() == 0) {
             for (int i = 0; i < samplePosts.size(); i++) {
@@ -188,12 +188,12 @@ public class Main implements CommandLineRunner {
                 postRepository.save(post);
             }
         }
-        
+
         System.out.println("Sample data initialization completed!");
         System.out.println("Created:");
         System.out.println("- 2 roles (Teacher, Student)");
         System.out.println("- 3 courses (Software Development, Front-End Development, Data Analytics)");
-        
+
         if (USE_LARGE_DATABASE) {
             System.out.println("- 12 cohorts (4 per course)");
             System.out.println("- " + (2 + students.size()) + " users with profiles (2 teachers + " + students.size() + " students)");
@@ -209,15 +209,15 @@ public class Main implements CommandLineRunner {
             System.out.println("  - Front-End Development: 1 cohort (10 students)");
             System.out.println("  - Data Analytics: 1 cohort (10 students)");
         }
-        
+
         System.out.println("- " + samplePosts.size() + " sample posts");
     }
-    
+
     private Role createOrGetRole(ERole roleName) {
         return roleRepository.findByName(roleName)
             .orElseGet(() -> roleRepository.save(new Role(roleName)));
     }
-    
+
     private User createUser(String email, String password, Role role) {
         // Check if user already exists
         return userRepository.findByEmail(email)
@@ -229,14 +229,14 @@ public class Main implements CommandLineRunner {
                 return userRepository.save(user);
             });
     }
-    
+
     private Course createOrGetCourse(String name) {
         return courseRepository.findAll().stream()
             .filter(course -> course.getName().equals(name))
             .findFirst()
             .orElseGet(() -> courseRepository.save(new Course(name)));
     }
-    
+
     private Cohort createOrGetCohort(String name, Course course) {
         return cohortRepository.findAll().stream()
             .filter(cohort -> cohort.getName().equals(name))
