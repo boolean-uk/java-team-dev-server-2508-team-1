@@ -3,6 +3,7 @@ package com.booleanuk.cohorts.controllers;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,9 +77,14 @@ public class UserController {
             error.set("not found");
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
+        for (Post post : user.getLikedPosts()){
+            post.getLikedByUsers().remove(user);
+        }
         user.getRoles().clear();
+        user.getLikedPosts().clear();
         UserResponse userResponse = new UserResponse();
         userResponse.set(user);
+
         try {
             userRepository.delete(user);
             return ResponseEntity.ok(userResponse);

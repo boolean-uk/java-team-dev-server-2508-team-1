@@ -49,7 +49,7 @@ public class User {
     @JsonIncludeProperties({"id", "content", "likes", "timeCreated", "timeUpdated" })
     private List<Post> posts;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_liked_posts", 
                joinColumns = @JoinColumn(name = "user_id"), 
                inverseJoinColumns = @JoinColumn(name = "post_id"))
