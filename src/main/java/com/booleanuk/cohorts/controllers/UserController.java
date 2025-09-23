@@ -1,5 +1,6 @@
 package com.booleanuk.cohorts.controllers;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -69,27 +70,28 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @DeleteMapping("{id}")  
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUser(@PathVariable int id) {
         User user = this.userRepository.findById(id).orElse(null);
-        if (user == null){
+        if (user == null) {
             ErrorResponse error = new ErrorResponse();
             error.set("not found");
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
-        for (Post post : user.getLikedPosts()){
-            post.getLikedByUsers().remove(user);
+
+        for (Post likedPost : new HashSet<>(user.getLikedPosts())) {
+            likedPost.getLikedByUsers().remove(user);
         }
-        user.getRoles().clear();
         user.getLikedPosts().clear();
+
         UserResponse userResponse = new UserResponse();
         userResponse.set(user);
 
         try {
             userRepository.delete(user);
             return ResponseEntity.ok(userResponse);
-        } catch (Exception e){
-            return new ResponseEntity<>("Could not delete user", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Could not delete user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
