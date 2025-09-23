@@ -102,7 +102,7 @@ public class StudentController {
             profile.setMobile(studentRequest.getMobile());
         }
 
-        if (studentRequest.getPassword() != null) {
+        if (studentRequest.getPassword() != null && !studentRequest.getPassword().isBlank()) {
             user.setPassword(encoder.encode(studentRequest.getPassword()));
         }
 
