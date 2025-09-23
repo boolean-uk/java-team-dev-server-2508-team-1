@@ -1,5 +1,6 @@
 package com.booleanuk;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -62,10 +63,13 @@ public class Main implements CommandLineRunner {
         Role teacherRole = createOrGetRole(ERole.ROLE_TEACHER);
         Role studentRole = createOrGetRole(ERole.ROLE_STUDENT);
         
-        // Create courses
-        Course javaFundamentals = createOrGetCourse("Software Development");
-        Course springBoot = createOrGetCourse("Front-End Development");
-        Course reactFundamentals = createOrGetCourse("Data Analytics");
+        // Create courses with start and end dates
+        Course javaFundamentals = createOrGetCourse("Software Development", 
+            LocalDate.of(2024, 1, 15), LocalDate.of(2024, 7, 15));
+        Course springBoot = createOrGetCourse("Front-End Development", 
+            LocalDate.of(2024, 2, 1), LocalDate.of(2024, 8, 1));
+        Course reactFundamentals = createOrGetCourse("Data Analytics", 
+            LocalDate.of(2024, 3, 1), LocalDate.of(2024, 9, 1));
         
         // Create cohorts based on configuration
         List<Cohort> allCohorts = new ArrayList<>();
@@ -192,7 +196,7 @@ public class Main implements CommandLineRunner {
         System.out.println("Sample data initialization completed!");
         System.out.println("Created:");
         System.out.println("- 2 roles (Teacher, Student)");
-        System.out.println("- 3 courses (Software Development, Front-End Development, Data Analytics)");
+        System.out.println("- 3 courses with date ranges (Software Development: Jan-Jul 2024, Front-End Development: Feb-Aug 2024, Data Analytics: Mar-Sep 2024)");
         
         if (USE_LARGE_DATABASE) {
             System.out.println("- 12 cohorts (4 per course)");
@@ -230,11 +234,11 @@ public class Main implements CommandLineRunner {
             });
     }
     
-    private Course createOrGetCourse(String name) {
+    private Course createOrGetCourse(String name, LocalDate startDate, LocalDate endDate) {
         return courseRepository.findAll().stream()
             .filter(course -> course.getName().equals(name))
             .findFirst()
-            .orElseGet(() -> courseRepository.save(new Course(name)));
+            .orElseGet(() -> courseRepository.save(new Course(name, startDate, endDate, null)));
     }
     
     private Cohort createOrGetCohort(String name, Course course) {
