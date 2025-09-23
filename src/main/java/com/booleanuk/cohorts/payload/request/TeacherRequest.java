@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class StudentRequest {
+public class TeacherRequest {
 
     private String photo;
     private String first_name;
@@ -17,7 +17,6 @@ public class StudentRequest {
     private String password;
     private String bio;
 
-    public StudentRequest() {
+    public TeacherRequest() {
     }
 }
-
