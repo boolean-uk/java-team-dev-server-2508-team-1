@@ -1,13 +1,14 @@
 package com.booleanuk.cohorts.models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -23,6 +24,12 @@ public class Cohort {
 
     @Column
     private String name;
+  
+    @Column
+    private LocalDate startDate;
+
+    @Column
+    private LocalDate endDate;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -39,7 +46,8 @@ public class Cohort {
     }
 
 
-    public Cohort(String name, List<Profile> profiles, Course course){
+
+    public Cohort(String name, List<Profile> profiles, LocalDate startDate, LocalDate endDate, Course course){
         this.name = name;
         this.profiles = profiles;
         this.course = course;
@@ -49,8 +57,10 @@ public class Cohort {
         this.name = name;
     }
 
-    public Cohort(String name, Course course){
+    public Cohort(String name,LocalDate startDate, LocalDate endDate ,Course course){
         this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.course = course;
     }
 
@@ -61,6 +71,8 @@ public class Cohort {
 
     @Override
     public String toString(){
-        return "Cohort Id: " + this.id;
+        return "Cohort Id: " + this.id + "\n" +
+                "Start date: " + this.startDate +
+                "End date: " + this.startDate;
     }
 }

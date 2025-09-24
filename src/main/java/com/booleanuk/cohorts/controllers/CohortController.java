@@ -6,6 +6,7 @@ import com.booleanuk.cohorts.payload.request.CohortRequestWithProfiles;
 import com.booleanuk.cohorts.payload.request.ProfileRequest;
 import com.booleanuk.cohorts.payload.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.CourseRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
@@ -13,6 +14,9 @@ import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,7 +81,11 @@ public class CohortController {
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
 
 
-        Cohort cohort = new Cohort(cohortRequest.getName(), course);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate().trim(), formatter);
+        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate().trim(), formatter);
+
+        Cohort cohort = new Cohort(cohortRequest.getName(),startDate,endDate,course);
         return ResponseEntity.ok(cohortRepository.save(cohort));
     }
 
@@ -92,6 +100,11 @@ public class CohortController {
 
         String name = cohortRequest.getName();
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate(),formatter);
+        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate(),formatter);
+
 
 
         List<Profile> profiles = profileRepository.findAll().stream().filter(it -> cohortRequest.getProfileIds().contains(it.getId())).collect(Collectors.toList());
@@ -108,6 +121,8 @@ public class CohortController {
         cohort.setProfiles(profiles);
         cohort.setCourse(course);
         cohort.setName(cohortRequest.getName());
+        cohort.setStartDate(startDate);
+        cohort.setEndDate(endDate);
 
         return ResponseEntity.ok(cohortRepository.save(cohort));
     }
@@ -123,6 +138,26 @@ public class CohortController {
         profile.setCohort(cohort);
 
         return new ResponseEntity<>(profileRepository.save(profile), HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteCohort(@PathVariable int id) {
+        Cohort cohort = cohortRepository.findById(id).orElse(null);
+        if (cohort == null) return new ResponseEntity<>("Cohort for id " + Integer.valueOf(id) + " not found.", HttpStatus.NOT_FOUND);
+        CohortResponse cohortResponse = new CohortResponse();
+        cohortResponse.set(cohort);
+
+        for (Profile profile : cohort.getProfiles()){
+            profile.setCohort(null);
+        }
+        cohort.getProfiles().clear();
+        cohort.getCourse().getCohorts().remove(cohort);
+        try {
+            cohortRepository.delete(cohort);
+            return ResponseEntity.ok(cohortResponse);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Could not delete Cohort", HttpStatus.BAD_REQUEST);
+        }
     }
 }
 

@@ -17,11 +17,14 @@ public class SignupRequest {
     @Email
     private String email;
 
-    private Set<String> role;
-
     @NotBlank
     @Size(min = 6, max = 40)
     private String password;
 
     private Cohort cohort;
+
+    public SignupRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

@@ -92,31 +92,7 @@ public class AuthController {
 
         // Create a new user add salt here if using one
         User user = new User(signupRequest.getEmail(), encoder.encode(signupRequest.getPassword()));
-        Set<String> strRoles = signupRequest.getRole();
-        Set<Role> roles = new HashSet<>();
 
-        if (strRoles == null) {
-            Role studentRole = roleRepository.findByName(ERole.ROLE_STUDENT).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-            roles.add(studentRole);
-        } else {
-            strRoles.forEach((role) -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        roles.add(adminRole);
-                        break;
-                    case "teacher":
-                        Role teacherRole = roleRepository.findByName(ERole.ROLE_TEACHER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        roles.add(teacherRole);
-                        break;
-                    default:
-                        Role studentRole = roleRepository.findByName(ERole.ROLE_STUDENT).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        roles.add(studentRole);
-                        break;
-                }
-            });
-        }
-        user.setRoles(roles);
         userRepository.save(user);
         return ResponseEntity.ok((new MessageResponse("User registered successfully")));
     }
