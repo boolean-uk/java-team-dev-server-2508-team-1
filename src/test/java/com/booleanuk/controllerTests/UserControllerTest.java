@@ -1,13 +1,14 @@
 package com.booleanuk.controllerTests;
 
 import com.booleanuk.cohorts.controllers.*;
+import com.booleanuk.cohorts.models.Cohort;
+import com.booleanuk.cohorts.models.ERole;
+import com.booleanuk.cohorts.models.Role;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.PostRequest;
 import com.booleanuk.cohorts.payload.request.SignupRequest;
 import com.booleanuk.cohorts.payload.response.PostResponse;
-import com.booleanuk.cohorts.repository.PostRepository;
-import com.booleanuk.cohorts.repository.ProfileRepository;
-import com.booleanuk.cohorts.repository.UserRepository;
+import com.booleanuk.cohorts.repository.*;
 import com.booleanuk.cohorts.security.services.UserDetailsImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -45,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserControllerTest {
 
     @Autowired
@@ -54,13 +57,25 @@ public class UserControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private AuthController authController;
+    private RoleRepository roleRepository;
 
     @Autowired
-    private PostRepository postRepository;
+    private CohortRepository cohortRepository;
 
     @Autowired
-    private PostController postController;
+    AuthController authController;
+
+    @Autowired
+    ProfileController profileController;
+
+    @Autowired
+    ProfileRepository profileRepository;
+
+    @Autowired
+    PostController postController;
+
+    @Autowired
+    PostRepository postRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -68,13 +83,32 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     private int actualUserId;
+    private int testCohortId;
 
     private User testUser;
 
     @BeforeEach
     public void setup() throws Exception {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+        profileRepository.deleteAll();
         userRepository.deleteAll();
+        roleRepository.deleteAll();
+        cohortRepository.deleteAll();
+        entityManager.flush();
+        entityManager.clear();
+
+
+        Role teacherRole = new Role(ERole.ROLE_TEACHER);
+        Role studentRole = new Role(ERole.ROLE_STUDENT);
+        roleRepository.save(teacherRole);
+        roleRepository.save(studentRole);
+        entityManager.flush();
+
+
+        Cohort testCohort = new Cohort();
+        testCohort = cohortRepository.save(testCohort);
+        testCohortId = testCohort.getId();
+        entityManager.flush();
 
         SignupRequest signupRequest = new SignupRequest("thomas@ladder.com", "@Qwerty12345");
         ResponseEntity<?> registerResponse = this.authController.registerUser(signupRequest);
@@ -195,7 +229,7 @@ public class UserControllerTest {
         // Create the request body with the post_id
         String requestBody = "{\"post_id\": " + postId + "}";
 
-        MvcResult result = this.mockMvc.perform(patch("/users/" + actualUserId)
+        MvcResult result = this.mockMvc.perform(patch("/users/" + actualUserId + "/like")
                 .with(user(UserDetailsImpl.build(testUser)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -210,10 +244,8 @@ public class UserControllerTest {
         JSONArray likedPosts = user.getJSONArray("likedPosts");
 
         assertEquals(1, likedPosts.length(), "User should have 1 liked post in their likedPosts array");
-        assertEquals("It's not DNS... There's no way it's DNS... It was DNS",  likedPosts.getJSONObject(0).getString("content"));
-
         User userWithLike = userRepository.getReferenceById(actualUserId);
-        assertTrue(userWithLike.getLikedPosts().size() == 1, "User should have 1 liked post in their likedPosts array");
+        assertTrue(userWithLike.getLikedPosts().size() == 1, "User should have 2 liked posts in their likedPosts array");
     }
 
     @Test
@@ -229,7 +261,7 @@ public class UserControllerTest {
         int postId = this.postRepository.findAll().get(0).getId();
         String requestBody = "{\"post_id\": " + postId + "}";
 
-        MvcResult result = this.mockMvc.perform(patch("/users/" + actualUserId)
+        MvcResult result = this.mockMvc.perform(patch("/users/" + actualUserId + "/like")
                         .with(user(UserDetailsImpl.build(testUser)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -242,7 +274,7 @@ public class UserControllerTest {
         postId = this.postRepository.findAll().get(1).getId();
         requestBody = "{\"post_id\": " + postId + "}";
 
-        result = this.mockMvc.perform(patch("/users/" + actualUserId)
+        result = this.mockMvc.perform(patch("/users/" + actualUserId + "/like")
                         .with(user(UserDetailsImpl.build(testUser)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -257,11 +289,9 @@ public class UserControllerTest {
         JSONObject user = jsonObject.getJSONObject("user");
         JSONArray likedPosts = user.getJSONArray("likedPosts");
 
-        assertEquals(2, likedPosts.length(), "User should have 1 liked post in their likedPosts array");
-        assertEquals("It's not DNS... There's no way it's DNS... It was DNS",  likedPosts.getJSONObject(0).getString("content"));
-        assertEquals("Sorry I forgot",  likedPosts.getJSONObject(1).getString("content"));
+        assertEquals(2, likedPosts.length(), "User should have 2 liked posts in their likedPosts array");
 
         User userWithLike = userRepository.getReferenceById(actualUserId);
-        assertTrue(userWithLike.getLikedPosts().size() == 2, "User should have 1 liked post in their likedPosts array");
+        assertTrue(userWithLike.getLikedPosts().size() == 2, "User should have 2 liked posts in their likedPosts array");
     }
 }

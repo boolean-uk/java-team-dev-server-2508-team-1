@@ -5,9 +5,13 @@ import com.booleanuk.cohorts.controllers.ProfileController;
 import com.booleanuk.cohorts.models.Cohort;
 import com.booleanuk.cohorts.models.Profile;
 import com.booleanuk.cohorts.models.User;
+import com.booleanuk.cohorts.models.Role;
+import com.booleanuk.cohorts.models.ERole;
 import com.booleanuk.cohorts.payload.request.SignupRequest;
 import com.booleanuk.cohorts.repository.ProfileRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
+import com.booleanuk.cohorts.repository.RoleRepository;
+import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.security.services.UserDetailsImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -20,9 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -39,12 +45,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class CohortControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private CohortRepository cohortRepository;
 
     @Autowired
     AuthController authController;
@@ -61,18 +74,37 @@ public class CohortControllerTest {
     private MockMvc mockMvc;
 
     private int actualUserId;
+    private int testCohortId;
 
     private User testUser;
 
     @BeforeEach
     public void setup() throws Exception {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+
+        profileRepository.deleteAll();
         userRepository.deleteAll();
+        roleRepository.deleteAll();
+        cohortRepository.deleteAll();
+        entityManager.flush();
+        entityManager.clear();
+
+
+        Role teacherRole = new Role(ERole.ROLE_TEACHER);
+        Role studentRole = new Role(ERole.ROLE_STUDENT);
+        roleRepository.save(teacherRole);
+        roleRepository.save(studentRole);
+        entityManager.flush();
+
+
+        Cohort testCohort = new Cohort();
+        testCohort = cohortRepository.save(testCohort);
+        testCohortId = testCohort.getId();
+        entityManager.flush();
 
         SignupRequest signupRequest = new SignupRequest("thomas@ladder.com", "@Qwerty12345");
         this.authController.registerUser(signupRequest);
         entityManager.flush();
-        entityManager.clear();
 
         testUser = userRepository.findAll().get(0);
         actualUserId = testUser.getId();
@@ -87,14 +119,17 @@ public class CohortControllerTest {
                 "I need a ladder, but can't afford one. So, steps will have to be taken",
                 "ROLE_TEACHER",
                 "Big moves",
-                1,
+                testCohortId,
                 "1999-01-01",
                 "2039-01-01",
                 "https://media.makeameme.org/created/ladder-i.jpg"
         );
-        this.profileController.createProfile(postProfile);
+        ResponseEntity profileRegisterResponse = this.profileController.createProfile(postProfile);
         entityManager.flush();
         entityManager.clear();
+
+        // Refresh the user entity to get the updated state with profile
+        testUser = userRepository.findById(actualUserId).orElse(null);
     }
 
     private void authenticateUser(User user) {
@@ -131,7 +166,7 @@ public class CohortControllerTest {
 
     @Test
     public void tryGetCohortsById_testEmailOnFirstProfile_withSingleProfileInDb() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/cohorts/1")
+        MvcResult result = this.mockMvc.perform(get("/cohorts/" + testCohortId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -147,16 +182,7 @@ public class CohortControllerTest {
 
     @Test
     public void tryGetCohortsByUserId_testEmailOnFirstProfile_withSingleProfileInDb() throws Exception {
-        String profileJson = """
-        {
-            "":"",
-            "":""
-        }
-        """.formatted(actualUserId);
-
-        MvcResult result = this.mockMvc.perform(post("/cohorts/teacher/" + actualUserId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(profileJson))
+        MvcResult result = this.mockMvc.perform(get("/cohorts/teacher/" + actualUserId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -166,12 +192,66 @@ public class CohortControllerTest {
 
         JSONObject firstProfile = response.getJSONArray("profiles").getJSONObject(0);
         assertEquals(firstProfile.getString("firstName"), "Thomas");
-        assertEquals(firstProfile.getString("email"), "thomas@ladder.com");
+        assertEquals(firstProfile.getJSONObject("user").getString("email"), "thomas@ladder.com");
     }
 
     @Test
     public void tryAddStudentToCohort_checkProfileObjectAndResponseBody_withSingleProfileInDb() throws Exception {
+        Cohort secondTestCohort = new Cohort();
+        secondTestCohort = cohortRepository.save(secondTestCohort);
+        int secondTestCohortId = secondTestCohort.getId();
+        entityManager.flush();
 
+        SignupRequest studentSignupRequest = new SignupRequest("student@test.com", "@Student123");
+        this.authController.registerUser(studentSignupRequest);
+        entityManager.flush();
+
+        User studentUser = userRepository.findByEmail("student@test.com").orElse(null);
+        assertNotNull(studentUser);
+
+        ProfileController.PostProfile studentPostProfile = new ProfileController.PostProfile(
+                studentUser.getId(),
+                "Fritjof",
+                "Ladderson",
+                "BigLadderMan",
+                "748337483784",
+                "bigLadderMan",
+                "I invented the upside down ladder",
+                "ROLE_STUDENT",
+                "Alternative ladders",
+                secondTestCohortId,
+                "1999-01-01",
+                "2040-01-01",
+                "https://example.com/ladder.jpg"
+        );
+        this.profileController.createProfile(studentPostProfile);
+        entityManager.flush();
+
+        Profile studentProfile = profileRepository.findById(studentUser.getId()).orElse(null);
+        assertNotNull(studentProfile);
+
+        authenticateUser(testUser);
+
+        String requestBody = "{\"profileId\":" + studentProfile.getId() + "}";
+
+        MvcResult result = this.mockMvc.perform(patch("/cohorts/teacher/" + testCohortId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JSONObject response = new JSONObject(result.getResponse().getContentAsString());
+        assertNotNull(response);
+
+        assertEquals(testCohortId, response.getJSONObject("cohort").getInt("id"));
+        assertEquals("Fritjof", response.getString("firstName"));
+        assertEquals("Ladderson", response.getString("lastName"));
+
+        Profile updatedProfile = profileRepository.findById(studentProfile.getId()).orElse(null);
+        assertNotNull(updatedProfile);
+        assertNotNull(updatedProfile.getCohort());
+        assertEquals(testCohortId, updatedProfile.getCohort().getId());
     }
 
 }

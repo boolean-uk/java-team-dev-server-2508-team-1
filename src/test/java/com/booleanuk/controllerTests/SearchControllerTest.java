@@ -3,9 +3,14 @@ package com.booleanuk.controllerTests;
 import com.booleanuk.cohorts.controllers.AuthController;
 import com.booleanuk.cohorts.controllers.ProfileController;
 import com.booleanuk.cohorts.controllers.SearchController;
+import com.booleanuk.cohorts.models.Cohort;
+import com.booleanuk.cohorts.models.ERole;
+import com.booleanuk.cohorts.models.Role;
 import com.booleanuk.cohorts.models.User;
 import com.booleanuk.cohorts.payload.request.SignupRequest;
+import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
+import com.booleanuk.cohorts.repository.RoleRepository;
 import com.booleanuk.cohorts.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,6 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class SearchControllerTest {
 
     @Autowired
@@ -53,7 +60,10 @@ class SearchControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private SearchController searchController;
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private CohortRepository cohortRepository;
 
     @Autowired
     AuthController authController;
@@ -69,11 +79,34 @@ class SearchControllerTest {
 
     private MockMvc mockMvc;
 
+    private int actualUserId;
+    private int testCohortId;
+
+    private User testUser;
+
     @BeforeEach
     public void setup() throws Exception {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
-        userRepository.deleteAll();
+
         profileRepository.deleteAll();
+        userRepository.deleteAll();
+        roleRepository.deleteAll();
+        cohortRepository.deleteAll();
+        entityManager.flush();
+        entityManager.clear();
+
+
+        Role teacherRole = new Role(ERole.ROLE_TEACHER);
+        Role studentRole = new Role(ERole.ROLE_STUDENT);
+        roleRepository.save(teacherRole);
+        roleRepository.save(studentRole);
+        entityManager.flush();
+
+
+        Cohort testCohort = new Cohort();
+        testCohort = cohortRepository.save(testCohort);
+        testCohortId = testCohort.getId();
+        entityManager.flush();
 
         SignupRequest signupRequest = new SignupRequest("thomas@ladder.com", "@Qwerty12345");
         ResponseEntity<?> registerResponse = this.authController.registerUser(signupRequest);
@@ -94,7 +127,7 @@ class SearchControllerTest {
                 "gottaStepUp",
                 "244783772",
                 "tallerThanU",
-                "GI need a ladder, but can't afford one. So, steps will have to be taken",
+                "I need a ladder, but can't afford one. So, steps will have to be taken",
                 "ROLE_STUDENT",
                 "Big moves",
                 1,
@@ -102,7 +135,6 @@ class SearchControllerTest {
                 "2039-01-01",
                 "https://media.makeameme.org/created/ladder-i.jpg"
         ));
-
 
         entityManager.flush();
         entityManager.clear();
