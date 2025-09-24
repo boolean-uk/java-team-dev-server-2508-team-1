@@ -12,6 +12,8 @@ import java.util.List;
 public class CohortRequestWithProfiles {
     private String name;
     private int courseId;
+    private String startDate;
+    private String endDate;
     private List<Integer> profileIds;
 
     public CohortRequestWithProfiles(){}}

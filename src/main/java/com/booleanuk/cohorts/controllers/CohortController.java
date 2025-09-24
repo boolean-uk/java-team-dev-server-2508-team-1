@@ -6,6 +6,8 @@ import com.booleanuk.cohorts.payload.request.CohortRequestWithProfiles;
 import com.booleanuk.cohorts.payload.request.ProfileRequest;
 import com.booleanuk.cohorts.payload.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+
 import com.booleanuk.cohorts.repository.CohortRepository;
 import com.booleanuk.cohorts.repository.CourseRepository;
 import com.booleanuk.cohorts.repository.ProfileRepository;
@@ -13,6 +15,10 @@ import com.booleanuk.cohorts.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,8 +82,14 @@ public class CohortController {
         String name = cohortRequest.getName();
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
 
+        System.out.println("StartDate raw: '" + cohortRequest.getStartDate() + "'");
+        System.out.println("###########################################");
 
-        Cohort cohort = new Cohort(cohortRequest.getName(), course);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate().trim(), formatter);
+        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate().trim(), formatter);
+
+        Cohort cohort = new Cohort(cohortRequest.getName(),startDate,endDate,course);
         return ResponseEntity.ok(cohortRepository.save(cohort));
     }
 
@@ -92,6 +104,11 @@ public class CohortController {
 
         String name = cohortRequest.getName();
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate(),formatter);
+        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate(),formatter);
+
 
 
         List<Profile> profiles = profileRepository.findAll().stream().filter(it -> cohortRequest.getProfileIds().contains(it.getId())).collect(Collectors.toList());
@@ -108,6 +125,8 @@ public class CohortController {
         cohort.setProfiles(profiles);
         cohort.setCourse(course);
         cohort.setName(cohortRequest.getName());
+        cohort.setStartDate(startDate);
+        cohort.setEndDate(endDate);
 
         return ResponseEntity.ok(cohortRepository.save(cohort));
     }
