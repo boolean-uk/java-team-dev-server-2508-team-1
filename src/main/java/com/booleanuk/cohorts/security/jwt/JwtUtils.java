@@ -130,6 +130,6 @@ public class JwtUtils {
             // Extract userId from expired token
             return e.getClaims().get("userId", Integer.class);
         }
-    }
+    } 
 }
 
