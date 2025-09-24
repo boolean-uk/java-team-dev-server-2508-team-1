@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -99,7 +100,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<?> getAllPosts() {
-        List<Post> posts = this.postRepository.findAll();
+        List<Post> posts = this.postRepository.findAllWithUsers();
         posts.forEach(this::setAuthorInfo);
         
         PostListResponse postListResponse = new PostListResponse();
@@ -123,7 +124,7 @@ public class PostController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> getPostById(@PathVariable int id) {
-        Post post = this.postRepository.findById(id).orElse(null);
+        Post post = this.postRepository.findByIdWithUser(id).orElse(null);
         if (post == null) return notFoundResponse("Post not found");
         
         setAuthorInfo(post);
@@ -133,23 +134,48 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> deletePostById(@PathVariable int id) {
-        Post post = this.postRepository.findById(id).orElse(null);
+        // Use the optimized query to fetch the post with all necessary data loaded
+        Post post = this.postRepository.findByIdWithUser(id).orElse(null);
         if (post == null) return notFoundResponse("Post not found");
 
-        // First, remove this post from all users' liked posts to avoid foreign key constraint violation
-        List<User> allUsers = this.userRepository.findAll();
-        for (User user : allUsers) {
-            if (user.getLikedPosts().contains(post)) {
-                user.getLikedPosts().remove(post);
-                this.userRepository.save(user);
+        // Create a simple response object with just the basic info to avoid lazy loading issues
+        // We'll create a minimal post object with just the essential data
+        Post responsePost = new Post();
+        responsePost.setId(post.getId());
+        responsePost.setContent(post.getContent());
+        responsePost.setLikes(post.getLikes());
+        responsePost.setTimeCreated(post.getTimeCreated());
+        responsePost.setTimeUpdated(post.getTimeUpdated());
+        
+        // Set author info from the eagerly loaded data
+        if (post.getUser() != null) {
+            setAuthorInfo(responsePost, post.getUser());
+        }
+        
+        // First remove the post from the liked_posts relationship table
+        // This prevents foreign key constraint violations
+        postRepository.removeLikedPostFromAllUsers(id);
+        
+        // Now delete the post - comments will be deleted automatically due to cascade
+        postRepository.deleteById(id);
+        
+        PostResponse postResponse = new PostResponse();
+        postResponse.set(responsePost);
+        return ResponseEntity.ok(postResponse);
+    }
+    
+    private void setAuthorInfo(Post post, User user) {
+        if (user != null) {
+            Profile profile = user.getProfile();
+            if (profile != null) {
+                Author author = new Author(user.getId(), profile.getCohort().getId(),
+                    profile.getFirstName(), profile.getLastName(), user.getEmail(), 
+                    profile.getBio(), profile.getGithubUrl());
+                post.setAuthor(author);
             }
         }
-
-        PostResponse postResponse = new PostResponse();
-        postResponse.set(post);
-        postRepository.delete(post);
-        return ResponseEntity.ok(postResponse);
     }
 
     @PostMapping("/{postId}/comments")

@@ -122,5 +122,14 @@ public class JwtUtils {
             return e.getClaims().getSubject();
         }
     }
+
+    public Integer getUserIdFromExpiredJwtToken(String token) {
+        try {
+            return Jwts.parser().verifyWith(this.key()).build().parseSignedClaims(token).getPayload().get("userId", Integer.class);
+        } catch (ExpiredJwtException e) {
+            // Extract userId from expired token
+            return e.getClaims().get("userId", Integer.class);
+        }
+    }
 }
 

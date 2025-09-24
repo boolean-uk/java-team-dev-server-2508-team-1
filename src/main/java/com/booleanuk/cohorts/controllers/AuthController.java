@@ -137,13 +137,19 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(new MessageResponse("Invalid token"));
             }
             
-            // 3. Decode token to get user email (handling expired tokens)
-            String userEmail = jwtUtils.getUserNameFromExpiredJwtToken(token);
+            // 3. Get user ID from token instead of email (this doesn't change when email is updated)
+            Integer userId = jwtUtils.getUserIdFromExpiredJwtToken(token);
             
-            // 4. Fetch updated user from database
-            User user = userRepository.findByEmailWithProfile(userEmail).orElse(null);
+            if (userId == null) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Invalid token - no user ID found"));
+            }
+            
+            // 4. Find user by ID (stable identifier that doesn't change with email updates)
+            User user = userRepository.findByIdWithProfile(userId).orElse(null);
+            
             if (user == null) {
-                return ResponseEntity.badRequest().body(new MessageResponse("User not found"));
+                // User not found by ID - this means the user was deleted
+                return ResponseEntity.badRequest().body(new MessageResponse("User not found. Please log in again."));
             }
             
             // 5. Create new authentication object with fresh user data
@@ -151,7 +157,7 @@ public class AuthController {
             UsernamePasswordAuthenticationToken authentication = 
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             
-            // 6. Generate new token with fresh user data
+            // 6. Generate new token with fresh user data (including any email changes)
             String newJwt = jwtUtils.generateJwtToken(authentication);
             
             // 7. Return new token in response
