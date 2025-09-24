@@ -1,7 +1,5 @@
 package com.booleanuk.cohorts.payload.request;
 
-import com.booleanuk.cohorts.models.Course;
-import com.booleanuk.cohorts.models.Profile;
 import lombok.Getter;
 import lombok.Setter;
 

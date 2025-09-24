@@ -1,10 +1,7 @@
 package com.booleanuk.cohorts.models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import org.springframework.cglib.core.Local;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
