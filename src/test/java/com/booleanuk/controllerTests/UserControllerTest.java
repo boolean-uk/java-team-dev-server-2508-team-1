@@ -54,9 +54,6 @@ public class UserControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private UserController userController;
-
-    @Autowired
     private AuthController authController;
 
     @Autowired
@@ -71,6 +68,7 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     private int actualUserId;
+
     private User testUser;
 
     @BeforeEach
