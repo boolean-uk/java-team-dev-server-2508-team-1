@@ -81,9 +81,8 @@ public class CohortController {
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
 
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate().trim(), formatter);
-        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate().trim(), formatter);
+        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate().trim());
+        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate().trim());
 
         Cohort cohort = new Cohort(cohortRequest.getName(),startDate,endDate,course);
         return ResponseEntity.ok(cohortRepository.save(cohort));
@@ -101,9 +100,8 @@ public class CohortController {
         String name = cohortRequest.getName();
         if (name.isBlank()) return new ResponseEntity<>("Name cannot be blank", HttpStatus.BAD_REQUEST);
         
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate(),formatter);
-        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate(),formatter);
+        LocalDate startDate = LocalDate.parse(cohortRequest.getStartDate());
+        LocalDate endDate = LocalDate.parse(cohortRequest.getEndDate());
 
 
 
