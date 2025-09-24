@@ -124,5 +124,25 @@ public class CohortController {
 
         return new ResponseEntity<>(profileRepository.save(profile), HttpStatus.OK);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteCohort(@PathVariable int id) {
+        Cohort cohort = cohortRepository.findById(id).orElse(null);
+        if (cohort == null) return new ResponseEntity<>("Cohort for id " + Integer.valueOf(id) + " not found.", HttpStatus.NOT_FOUND);
+        CohortResponse cohortResponse = new CohortResponse();
+        cohortResponse.set(cohort);
+
+        for (Profile profile : cohort.getProfiles()){
+            profile.setCohort(null);
+        }
+        cohort.getProfiles().clear();
+        cohort.getCourse().getCohorts().remove(cohort);
+        try {
+            cohortRepository.delete(cohort);
+            return ResponseEntity.ok(cohortResponse);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Could not delete Cohort", HttpStatus.BAD_REQUEST);
+        }
+    }
 }
 
