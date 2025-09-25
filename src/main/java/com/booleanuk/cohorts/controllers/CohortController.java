@@ -47,7 +47,8 @@ public class CohortController {
     @GetMapping("{id}")
     public ResponseEntity<Response> getCohortById(@PathVariable int id) {
         Cohort cohort = this.cohortRepository.findById(id).orElse(null);
-        if (cohort == null || cohort.getProfiles().isEmpty()) {
+      System.err.println(cohort);
+        if (cohort == null) {
             ErrorResponse error = new ErrorResponse();
             error.set("not found");
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
