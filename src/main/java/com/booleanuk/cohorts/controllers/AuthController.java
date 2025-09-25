@@ -93,6 +93,13 @@ public class AuthController {
         // Create a new user add salt here if using one
         User user = new User(signupRequest.getEmail(), encoder.encode(signupRequest.getPassword()));
 
+        // Assign default role to the user
+        Set<Role> roles = new HashSet<>();
+        Role studentRole = roleRepository.findByName(ERole.ROLE_STUDENT)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        roles.add(studentRole);
+        user.setRoles(roles);
+
         userRepository.save(user);
         return ResponseEntity.ok((new MessageResponse("User registered successfully")));
     }
