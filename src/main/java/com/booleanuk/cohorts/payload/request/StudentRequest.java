@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class StudentRequest {
 
+    private int cohortId;
     private String photo;
     private String first_name;
     private String last_name;
