@@ -160,10 +160,6 @@ public class StudentController {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        Cohort cohort = cohortRepository.findById(studentRequest.getCohortId()).orElse(null);
-        if (cohort == null) {
-            return new ResponseEntity<>("Cohort not found", HttpStatus.NOT_FOUND);
-        }
 
         Profile profile = profileRepository.findById(user.getProfile().getId()).orElse(null);
         if (profile == null) {
@@ -194,11 +190,10 @@ public class StudentController {
             profile.setGithubUrl(studentRequest.getGithub_username());
         }
 
+        Cohort cohort = cohortRepository.findById(studentRequest.getCohortId()).orElse(null);
         if (cohort!=null) {
             profile.setCohort(cohort);
         }
-
-        profile.setCohort(cohort);
 
 
         if (studentRequest.getEmail() != null) {
